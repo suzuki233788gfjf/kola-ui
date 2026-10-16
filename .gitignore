@@ -1,0 +1,20 @@
+# Système
+.DS_Store
+.idea/
+.vscode/
+
+# Flutter / Dart
+.dart_tool/
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+pubspec_overrides.yaml
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+
+# Secrets
+.env
+.env.*
