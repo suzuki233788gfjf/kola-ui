@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+/* Couleurs Kola UI — identiques aux variables Figma et au thème Flutter */
+@theme {
+  --color-bg: #fafaf8;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f4f3ef;
+  --color-chip: #efece5;
+  --color-ink: #1a1712;
+  --color-ink-muted: #4f4a42;
+  --color-ink-subtle: #6b655b;
+  --color-line: #e6e3dc;
+  --color-line-strong: #d9d5cc;
+  --color-accent: #1f6b45;
+  --color-accent-dark: #164f33;
+  --color-accent-tint: #e7f1eb;
+  --color-danger: #9a3324;
+  --color-on-dark: #f3f1ec;
+  --color-on-dark-muted: #c9c4ba;
+  --color-dark-line: #3a352d;
+
+  --font-display: var(--font-bricolage), system-ui, sans-serif;
+  --font-sans: var(--font-plex), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+}
