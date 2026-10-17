@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { COMPONENTS, getComponent } from "@/lib/components";
 import { getDartSource } from "@/lib/source";
-import { ButtonPlayground } from "@/components/ButtonPlayground";
+import { PLAYGROUNDS } from "@/components/Playgrounds";
 import { CodeBlock } from "@/components/CodeBlock";
 
 export function generateStaticParams() {
@@ -22,6 +22,7 @@ export default async function ComponentPage({ params }: PageProps<"/composants/[
   if (!component || !component.available || !component.file) notFound();
 
   const source = await getDartSource(component.file);
+  const ComponentPlayground = PLAYGROUNDS[component.slug];
 
   return (
     <main className="mx-auto flex max-w-[1200px] flex-col gap-8 px-6 pt-8 pb-22">
@@ -37,15 +38,24 @@ export default async function ComponentPage({ params }: PageProps<"/composants/[
         <p className="max-w-[680px] text-[17px] leading-relaxed text-ink-muted">{component.summary}</p>
       </div>
 
-      <ButtonPlayground />
+      {ComponentPlayground && <ComponentPlayground />}
 
       <section className="flex flex-col gap-4">
         <h2 className="font-display text-[28px] font-bold">Le composant</h2>
         <p className="text-ink-muted">
           Copie ce fichier dans <code className="rounded bg-chip px-1.5 py-0.5 font-mono text-sm">lib/kola/</code> de ton
-          projet. Il n&apos;a besoin que du thème Kola (voir{" "}
+          projet. Il a besoin du thème Kola (voir{" "}
           <Link href="/demarrer" className="text-accent hover:text-accent-dark">Démarrer</Link>).
         </p>
+        {component.requires?.map((f) => (
+          <p key={f} className="rounded-xl bg-accent-tint px-4 py-3 text-ink">
+            Ce composant utilise aussi <code className="font-mono text-sm">{f}</code> : copie-le depuis la page{" "}
+            <Link href="/composants/champ-de-texte" className="font-semibold text-accent hover:text-accent-dark">
+              Champ de texte
+            </Link>
+            .
+          </p>
+        ))}
         <CodeBlock filename={`lib/kola/${component.file}`} code={source} />
       </section>
     </main>

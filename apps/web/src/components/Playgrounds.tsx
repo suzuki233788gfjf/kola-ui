@@ -1,0 +1,207 @@
+"use client";
+
+import { useState } from "react";
+import { ColorPicker, DEFAULT_COLOR, Playground, TextInput, Toggle, dartString } from "./Playground";
+
+const flag = (b: boolean) => (b ? "1" : undefined);
+const lines = (...l: (string | null | false)[]) => l.filter(Boolean).join("\n");
+
+/* ---------- Bouton ---------- */
+
+const VARIANTS = [
+  { id: "primary", label: "Principal" },
+  { id: "secondary", label: "Secondaire" },
+  { id: "outline", label: "Contour" },
+  { id: "text", label: "Texte" },
+] as const;
+type Variant = (typeof VARIANTS)[number]["id"];
+
+function ButtonPlayground() {
+  const [variant, setVariant] = useState<Variant>("primary");
+  const [color, setColor] = useState(DEFAULT_COLOR);
+  const [label, setLabel] = useState("Valider");
+  const [icon, setIcon] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [dark, setDark] = useState(false);
+
+  const usage = lines(
+    "KolaButton(",
+    `  label: ${dartString(label)},`,
+    variant !== "primary" && `  variant: KolaButtonVariant.${variant},`,
+    icon && "  icon: Icons.check,",
+    loading && "  loading: true,",
+    "  onPressed: () {},",
+    ")",
+  );
+
+  return (
+    <Playground
+      slug="bouton"
+      color={color}
+      usage={usage}
+      params={{ variant, color, label, icon: flag(icon), loading: flag(loading), dark: flag(dark) }}
+      controls={
+        <>
+          <fieldset>
+            <legend className="mb-2.5 text-sm font-semibold">Variante</legend>
+            <div className="grid grid-cols-2 gap-1 rounded-xl bg-chip p-1">
+              {VARIANTS.map((v) => (
+                <button
+                  key={v.id}
+                  type="button"
+                  aria-pressed={variant === v.id}
+                  onClick={() => setVariant(v.id)}
+                  className={`min-h-10 rounded-[9px] text-sm ${
+                    variant === v.id ? "bg-surface font-semibold text-ink" : "text-ink-muted"
+                  }`}
+                >
+                  {v.label}
+                </button>
+              ))}
+            </div>
+          </fieldset>
+          <ColorPicker value={color} onChange={setColor} />
+          <TextInput id="label" label="Texte du bouton" value={label} onChange={setLabel} />
+          <Toggle label="Icône" checked={icon} onChange={setIcon} />
+          <Toggle label="Chargement" checked={loading} onChange={setLoading} />
+          <Toggle label="Mode sombre" checked={dark} onChange={setDark} />
+        </>
+      }
+    />
+  );
+}
+
+/* ---------- Champ de texte ---------- */
+
+function TextFieldPlayground() {
+  const [color, setColor] = useState(DEFAULT_COLOR);
+  const [label, setLabel] = useState("E-mail");
+  const [helper, setHelper] = useState("");
+  const [icon, setIcon] = useState(true);
+  const [password, setPassword] = useState(false);
+  const [error, setError] = useState(false);
+  const [dark, setDark] = useState(false);
+
+  const usage = lines(
+    "KolaTextField(",
+    `  label: ${dartString(label)},`,
+    !password && "  hint: 'nom@exemple.cm',",
+    helper && `  helper: ${dartString(helper)},`,
+    icon && `  prefixIcon: Icons.${password ? "lock_outline" : "mail_outline"},`,
+    password && "  obscure: true,",
+    error
+      ? "  validator: (v) => (v ?? '').contains('@') ? null : 'Adresse e-mail incomplète',"
+      : null,
+    ")",
+  );
+
+  return (
+    <Playground
+      slug="champ-de-texte"
+      color={color}
+      usage={usage}
+      params={{
+        color,
+        label,
+        helper: helper || undefined,
+        icon: flag(icon),
+        password: flag(password),
+        error: flag(error),
+        dark: flag(dark),
+      }}
+      controls={
+        <>
+          <ColorPicker value={color} onChange={setColor} />
+          <TextInput id="label" label="Label" value={label} onChange={setLabel} />
+          <TextInput id="helper" label="Texte d'aide (optionnel)" value={helper} onChange={setHelper} />
+          <Toggle label="Icône" checked={icon} onChange={setIcon} />
+          <Toggle label="Mot de passe" checked={password} onChange={setPassword} />
+          <Toggle label="Afficher une erreur" checked={error} onChange={setError} />
+          <Toggle label="Mode sombre" checked={dark} onChange={setDark} />
+        </>
+      }
+    />
+  );
+}
+
+/* ---------- Téléphone +237 ---------- */
+
+function PhonePlayground() {
+  const [color, setColor] = useState(DEFAULT_COLOR);
+  const [label, setLabel] = useState("Téléphone");
+  const [value, setValue] = useState("677123456");
+  const [dark, setDark] = useState(false);
+
+  const usage = lines(
+    "KolaPhoneField(",
+    label !== "Téléphone" && `  label: ${dartString(label)},`,
+    "  onChanged: (numero) {",
+    "    // numero = '677123456' (sans espaces)",
+    "  },",
+    ")",
+  );
+
+  return (
+    <Playground
+      slug="telephone-237"
+      color={color}
+      usage={usage}
+      params={{ color, label, value: value.replace(/\D/g, "") || undefined, dark: flag(dark) }}
+      controls={
+        <>
+          <ColorPicker value={color} onChange={setColor} />
+          <TextInput id="label" label="Label" value={label} onChange={setLabel} />
+          <TextInput id="value" label="Numéro d'exemple" value={value} onChange={setValue} inputMode="tel" />
+          <p className="text-sm leading-relaxed text-ink-muted">
+            Essaie <code className="font-mono">699…</code> pour Orange, <code className="font-mono">677…</code> pour MTN.
+            Tu peux aussi taper directement dans l&apos;aperçu.
+          </p>
+          <Toggle label="Mode sombre" checked={dark} onChange={setDark} />
+        </>
+      }
+    />
+  );
+}
+
+/* ---------- Montant FCFA ---------- */
+
+function AmountPlayground() {
+  const [color, setColor] = useState(DEFAULT_COLOR);
+  const [label, setLabel] = useState("Montant");
+  const [value, setValue] = useState("25000");
+  const [dark, setDark] = useState(false);
+
+  const usage = lines(
+    "KolaAmountField(",
+    label !== "Montant" && `  label: ${dartString(label)},`,
+    "  min: 100,",
+    "  onChanged: (montant) {",
+    "    // montant = 25000 (un int, sans espaces)",
+    "  },",
+    ")",
+  );
+
+  return (
+    <Playground
+      slug="montant-fcfa"
+      color={color}
+      usage={usage}
+      params={{ color, label, value: value.replace(/\D/g, "") || undefined, dark: flag(dark) }}
+      controls={
+        <>
+          <ColorPicker value={color} onChange={setColor} />
+          <TextInput id="label" label="Label" value={label} onChange={setLabel} />
+          <TextInput id="value" label="Montant d'exemple" value={value} onChange={setValue} inputMode="numeric" />
+          <Toggle label="Mode sombre" checked={dark} onChange={setDark} />
+        </>
+      }
+    />
+  );
+}
+
+export const PLAYGROUNDS: Record<string, () => React.JSX.Element> = {
+  bouton: ButtonPlayground,
+  "champ-de-texte": TextFieldPlayground,
+  "telephone-237": PhonePlayground,
+  "montant-fcfa": AmountPlayground,
+};
