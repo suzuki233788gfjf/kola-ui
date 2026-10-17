@@ -32,7 +32,7 @@ export function ButtonPlayground() {
   if (icon) query.set("icon", "1");
   if (loading) query.set("loading", "1");
   if (dark) query.set("dark", "1");
-  const previewSrc = `${PREVIEW_URL}/?${query.toString()}`;
+  const previewSrc = `${PREVIEW_URL}?${query.toString()}`;
 
   const usage = [
     "KolaButton(",
