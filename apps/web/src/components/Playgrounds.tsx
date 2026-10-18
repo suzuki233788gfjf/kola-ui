@@ -435,6 +435,186 @@ function ToastPlayground() {
   );
 }
 
+
+/* ---------- Sélecteur ---------- */
+
+function SelectPlayground() {
+  const [color, setColor] = useState(DEFAULT_COLOR);
+  const [label, setLabel] = useState("Ville");
+  const [dark, setDark] = useState(false);
+
+  const usage = lines(
+    "KolaSelect<String>(",
+    `  label: ${dartString(label)},`,
+    "  value: ville,",
+    "  options: const [",
+    "    KolaSelectOption('dla', 'Douala', subtitle: 'Littoral'),",
+    "    KolaSelectOption('yde', 'Yaoundé', subtitle: 'Centre'),",
+    "    KolaSelectOption('bfm', 'Bafoussam', subtitle: 'Ouest'),",
+    "  ],",
+    "  onChanged: (v) => setState(() => ville = v),",
+    ")",
+  );
+
+  return (
+    <Playground
+      slug="selecteur"
+      color={color}
+      height={420}
+      usage={usage}
+      params={{ color, label, dark: flag(dark) }}
+      controls={
+        <>
+          <ColorPicker value={color} onChange={setColor} />
+          <TextInput id="label" label="Label" value={label} onChange={setLabel} />
+          <Toggle label="Mode sombre" checked={dark} onChange={setDark} />
+          <p className="text-sm leading-relaxed text-ink-muted">
+            Ouvre le sélecteur dans l&apos;aperçu et tape <code className="font-mono">yaounde</code> : les accents sont
+            ignorés.
+          </p>
+        </>
+      }
+    />
+  );
+}
+
+/* ---------- Carte ---------- */
+
+function CardPlayground() {
+  const [color, setColor] = useState(DEFAULT_COLOR);
+  const [variant, setVariant] = useState<"product" | "stat">("product");
+  const [title, setTitle] = useState("Riz parfumé 5 kg");
+  const [badge, setBadge] = useState("Nouveau");
+  const [footer, setFooter] = useState("4 500 FCFA");
+  const [statLabel, setStatLabel] = useState("Ventes du jour");
+  const [statValue, setStatValue] = useState("125 000 FCFA");
+  const [change, setChange] = useState("12.5");
+  const [dark, setDark] = useState(false);
+
+  const usage =
+    variant === "product"
+      ? lines(
+          "KolaCard(",
+          "  media: Image.network(urlImage, fit: BoxFit.cover),",
+          badge && `  badge: ${dartString(badge)},`,
+          `  title: ${dartString(title)},`,
+          "  subtitle: 'Épicerie · En stock',",
+          `  footer: Text(${dartString(footer)}),`,
+          "  onTap: () {},",
+          ")",
+        )
+      : lines(
+          "KolaStatCard(",
+          `  label: ${dartString(statLabel)},`,
+          `  value: ${dartString(statValue)},`,
+          change && `  change: ${Number(change) || 0},`,
+          "  icon: Icons.payments_outlined,",
+          ")",
+        );
+
+  const params =
+    variant === "product"
+      ? { color, label: title, badge: badge || undefined, footer, dark: flag(dark) }
+      : { color, variant: "stat", label: statLabel, value: statValue, change, dark: flag(dark) };
+
+  return (
+    <Playground
+      slug="carte"
+      color={color}
+      height={420}
+      usage={usage}
+      params={params}
+      controls={
+        <>
+          <fieldset>
+            <legend className="mb-2.5 text-sm font-semibold">Type</legend>
+            <div className="grid grid-cols-2 gap-1 rounded-xl bg-chip p-1">
+              {(
+                [
+                  ["product", "Produit"],
+                  ["stat", "Statistique"],
+                ] as const
+              ).map(([v, l]) => (
+                <button
+                  key={v}
+                  type="button"
+                  aria-pressed={variant === v}
+                  onClick={() => setVariant(v)}
+                  className={`min-h-10 rounded-[9px] text-sm ${
+                    variant === v ? "bg-surface font-semibold text-ink" : "text-ink-muted"
+                  }`}
+                >
+                  {l}
+                </button>
+              ))}
+            </div>
+          </fieldset>
+          <ColorPicker value={color} onChange={setColor} />
+          {variant === "product" ? (
+            <>
+              <TextInput id="title" label="Titre" value={title} onChange={setTitle} />
+              <TextInput id="badge" label="Badge (optionnel)" value={badge} onChange={setBadge} />
+              <TextInput id="footer" label="Prix" value={footer} onChange={setFooter} />
+            </>
+          ) : (
+            <>
+              <TextInput id="statLabel" label="Libellé" value={statLabel} onChange={setStatLabel} />
+              <TextInput id="statValue" label="Valeur" value={statValue} onChange={setStatValue} />
+              <TextInput id="change" label="Évolution (%)" value={change} onChange={setChange} />
+            </>
+          )}
+          <Toggle label="Mode sombre" checked={dark} onChange={setDark} />
+        </>
+      }
+    />
+  );
+}
+
+/* ---------- Tableau ---------- */
+
+function TablePlayground() {
+  const [color, setColor] = useState(DEFAULT_COLOR);
+  const [mobile, setMobile] = useState(false);
+  const [rows, setRows] = useState("5");
+  const [dark, setDark] = useState(false);
+
+  const usage = lines(
+    "KolaDataTable<Produit>(",
+    "  rows: produits,",
+    rows !== "8" && `  rowsPerPage: ${Number(rows) || 5},`,
+    "  columns: [",
+    "    KolaColumn(label: 'Produit', cell: (p) => p.nom, sortBy: (p) => p.nom, flex: 2),",
+    "    KolaColumn(label: 'Stock', cell: (p) => '${p.stock}', sortBy: (p) => p.stock, numeric: true),",
+    "    KolaColumn(",
+    "      label: 'Prix',",
+    "      cell: (p) => '${KolaAmountField.format(p.prix)} FCFA',",
+    "      sortBy: (p) => p.prix,",
+    "      numeric: true,",
+    "    ),",
+    "  ],",
+    ")",
+  );
+
+  return (
+    <Playground
+      slug="tableau"
+      color={color}
+      height={mobile ? 640 : 480}
+      usage={usage}
+      params={{ color, rows, mobile: flag(mobile), dark: flag(dark) }}
+      controls={
+        <>
+          <ColorPicker value={color} onChange={setColor} />
+          <TextInput id="rows" label="Lignes par page" value={rows} onChange={setRows} inputMode="numeric" />
+          <Toggle label="Vue mobile (cartes)" checked={mobile} onChange={setMobile} />
+          <Toggle label="Mode sombre" checked={dark} onChange={setDark} />
+          <p className="text-sm leading-relaxed text-ink-muted">Clique sur « Stock » ou « Prix » dans l&apos;aperçu pour trier.</p>
+        </>
+      }
+    />
+  );
+}
+
 export const PLAYGROUNDS: Record<string, () => React.JSX.Element> = {
   bouton: ButtonPlayground,
   "champ-de-texte": TextFieldPlayground,
@@ -444,4 +624,7 @@ export const PLAYGROUNDS: Record<string, () => React.JSX.Element> = {
   "date-picker": DatePickerPlayground,
   confirmation: ConfirmPlayground,
   notifications: ToastPlayground,
+  selecteur: SelectPlayground,
+  carte: CardPlayground,
+  tableau: TablePlayground,
 };

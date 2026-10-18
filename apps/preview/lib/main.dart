@@ -8,6 +8,7 @@ void main() => runApp(const PreviewApp());
 ///   ?c=champ-de-texte&label=E-mail&error=1
 ///   ?c=telephone-237   ·   ?c=montant-fcfa   ·   ?c=mobile-money&amount=5000
 ///   ?c=date-picker&range=1   ·   ?c=confirmation&sheet=1   ·   ?c=notifications&type=error
+///   ?c=selecteur   ·   ?c=carte&variant=stat   ·   ?c=tableau&mobile=1
 class PreviewApp extends StatelessWidget {
   const PreviewApp({super.key});
 
@@ -129,6 +130,50 @@ class PreviewApp extends StatelessWidget {
             ),
           ),
         );
+      case 'selecteur':
+        return SizedBox(width: 340, child: _CitySelect(label: label ?? 'Ville'));
+      case 'carte':
+        if (p['variant'] == 'stat') {
+          return SizedBox(
+            width: 300,
+            child: KolaStatCard(
+              label: label ?? 'Ventes du jour',
+              value: p['value'] ?? '125 000 FCFA',
+              change: double.tryParse(p['change'] ?? '12.5'),
+              icon: Icons.payments_outlined,
+            ),
+          );
+        }
+        return SizedBox(
+          width: 280,
+          child: KolaCard(
+            media: const Center(child: Icon(Icons.shopping_basket_outlined, size: 48)),
+            badge: p['badge'],
+            title: label ?? 'Riz parfumé 5 kg',
+            subtitle: p['subtitle'] ?? 'Épicerie · En stock',
+            footer: Text(p['footer'] ?? '4 500 FCFA'),
+            onTap: () {},
+          ),
+        );
+      case 'tableau':
+        return SizedBox(
+          width: p['mobile'] == '1' ? 360 : 640,
+          child: KolaDataTable<_Product>(
+            rowsPerPage: int.tryParse(p['rows'] ?? '') ?? 5,
+            rows: _products,
+            columns: [
+              KolaColumn(label: 'Produit', cell: (r) => r.name, sortBy: (r) => r.name, flex: 2),
+              KolaColumn(label: 'Stock', cell: (r) => '${r.stock}', sortBy: (r) => r.stock, numeric: true),
+              KolaColumn(
+                label: 'Prix',
+                cell: (r) => '${KolaAmountField.format(r.price)} FCFA',
+                sortBy: (r) => r.price,
+                numeric: true,
+                flex: 2,
+              ),
+            ],
+          ),
+        );
       case 'mobile-money':
         return SizedBox(
           width: 380,
@@ -176,3 +221,56 @@ class PreviewApp extends StatelessWidget {
     return value == null ? null : Color(0xFF000000 | value);
   }
 }
+
+class _CitySelect extends StatefulWidget {
+  const _CitySelect({required this.label});
+  final String label;
+
+  @override
+  State<_CitySelect> createState() => _CitySelectState();
+}
+
+class _CitySelectState extends State<_CitySelect> {
+  String? _city;
+
+  static const _cities = [
+    KolaSelectOption('dla', 'Douala', subtitle: 'Littoral'),
+    KolaSelectOption('yde', 'Yaoundé', subtitle: 'Centre'),
+    KolaSelectOption('bfm', 'Bafoussam', subtitle: 'Ouest'),
+    KolaSelectOption('bda', 'Bamenda', subtitle: 'Nord-Ouest'),
+    KolaSelectOption('grg', 'Garoua', subtitle: 'Nord'),
+    KolaSelectOption('mrw', 'Maroua', subtitle: 'Extrême-Nord'),
+    KolaSelectOption('ngd', 'Ngaoundéré', subtitle: 'Adamaoua'),
+    KolaSelectOption('btr', 'Bertoua', subtitle: 'Est'),
+    KolaSelectOption('ebw', 'Ebolowa', subtitle: 'Sud'),
+    KolaSelectOption('bea', 'Buea', subtitle: 'Sud-Ouest'),
+    KolaSelectOption('kri', 'Kribi', subtitle: 'Sud'),
+    KolaSelectOption('lmb', 'Limbé', subtitle: 'Sud-Ouest'),
+  ];
+
+  @override
+  Widget build(BuildContext context) => KolaSelect<String>(
+        label: widget.label,
+        value: _city,
+        options: _cities,
+        onChanged: (v) => setState(() => _city = v),
+      );
+}
+
+class _Product {
+  const _Product(this.name, this.stock, this.price);
+  final String name;
+  final int stock;
+  final int price;
+}
+
+const _products = [
+  _Product('Riz parfumé 5 kg', 7, 4500),
+  _Product('Huile 1 L', 42, 1600),
+  _Product('Sucre 1 kg', 18, 900),
+  _Product('Lait en poudre 400 g', 12, 2800),
+  _Product('Savon de ménage', 64, 350),
+  _Product('Farine 1 kg', 25, 700),
+  _Product('Tomate concentrée', 80, 250),
+  _Product('Spaghetti 500 g', 33, 450),
+];

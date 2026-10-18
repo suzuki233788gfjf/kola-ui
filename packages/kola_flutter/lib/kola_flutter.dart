@@ -10,3 +10,6 @@ export 'src/kola_mobile_money_form.dart';
 export 'src/kola_date_picker.dart';
 export 'src/kola_confirm.dart';
 export 'src/kola_toast.dart';
+export 'src/kola_select.dart';
+export 'src/kola_card.dart';
+export 'src/kola_data_table.dart';
