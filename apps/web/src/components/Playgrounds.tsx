@@ -258,10 +258,190 @@ function MobileMoneyPlayground() {
   );
 }
 
+
+/* ---------- Date picker ---------- */
+
+function DatePickerPlayground() {
+  const [color, setColor] = useState(DEFAULT_COLOR);
+  const [range, setRange] = useState(true);
+  const [dark, setDark] = useState(false);
+
+  const usage = range
+    ? lines(
+        "final periode = await KolaDatePicker.showRange(context);",
+        "if (periode != null) {",
+        "  print('Du ${periode.start} au ${periode.end}');",
+        "}",
+      )
+    : lines(
+        "final date = await KolaDatePicker.show(context);",
+        "if (date != null) {",
+        "  print(KolaDateFr.date(date)); // '12 oct. 2026'",
+        "}",
+      );
+
+  return (
+    <Playground
+      slug="date-picker"
+      color={color}
+      height={560}
+      usage={usage}
+      params={{ color, range: range ? "1" : "0", dark: flag(dark) }}
+      controls={
+        <>
+          <fieldset>
+            <legend className="mb-2.5 text-sm font-semibold">Mode</legend>
+            <div className="grid grid-cols-2 gap-1 rounded-xl bg-chip p-1">
+              {[
+                [false, "Une date"],
+                [true, "Période"],
+              ].map(([v, l]) => (
+                <button
+                  key={String(v)}
+                  type="button"
+                  aria-pressed={range === v}
+                  onClick={() => setRange(v as boolean)}
+                  className={`min-h-10 rounded-[9px] text-sm ${
+                    range === v ? "bg-surface font-semibold text-ink" : "text-ink-muted"
+                  }`}
+                >
+                  {l as string}
+                </button>
+              ))}
+            </div>
+          </fieldset>
+          <ColorPicker value={color} onChange={setColor} />
+          <Toggle label="Mode sombre" checked={dark} onChange={setDark} />
+          <p className="text-sm leading-relaxed text-ink-muted">
+            Choisis des dates dans l&apos;aperçu puis clique sur « Valider ».
+          </p>
+        </>
+      }
+    />
+  );
+}
+
+/* ---------- Confirmation ---------- */
+
+function ConfirmPlayground() {
+  const [color, setColor] = useState(DEFAULT_COLOR);
+  const [title, setTitle] = useState("Supprimer cet article ?");
+  const [confirm, setConfirm] = useState("Supprimer");
+  const [destructive, setDestructive] = useState(true);
+  const [sheet, setSheet] = useState(false);
+  const [dark, setDark] = useState(false);
+
+  const usage = lines(
+    "final ok = await KolaConfirm.show(",
+    "  context,",
+    `  title: ${dartString(title)},`,
+    "  message: 'Cette action est définitive.',",
+    `  confirmLabel: ${dartString(confirm)},`,
+    destructive && "  destructive: true,",
+    sheet && "  sheet: true,",
+    ");",
+    "if (ok) {",
+    "  // l'utilisateur a confirmé",
+    "}",
+  );
+
+  return (
+    <Playground
+      slug="confirmation"
+      color={color}
+      usage={usage}
+      params={{
+        color,
+        label: title,
+        confirm,
+        destructive: flag(destructive),
+        sheet: flag(sheet),
+        dark: flag(dark),
+      }}
+      controls={
+        <>
+          <ColorPicker value={color} onChange={setColor} />
+          <TextInput id="title" label="Question" value={title} onChange={setTitle} />
+          <TextInput id="confirm" label="Bouton de confirmation" value={confirm} onChange={setConfirm} />
+          <Toggle label="Action dangereuse (rouge)" checked={destructive} onChange={setDestructive} />
+          <Toggle label="Panneau du bas (mobile)" checked={sheet} onChange={setSheet} />
+          <Toggle label="Mode sombre" checked={dark} onChange={setDark} />
+          <p className="text-sm leading-relaxed text-ink-muted">Clique sur le bouton de l&apos;aperçu pour l&apos;ouvrir.</p>
+        </>
+      }
+    />
+  );
+}
+
+/* ---------- Notifications ---------- */
+
+const TOAST_TYPES = [
+  { id: "success", label: "Succès" },
+  { id: "error", label: "Erreur" },
+  { id: "info", label: "Info" },
+  { id: "warning", label: "Alerte" },
+] as const;
+type ToastType = (typeof TOAST_TYPES)[number]["id"];
+
+function ToastPlayground() {
+  const [color, setColor] = useState(DEFAULT_COLOR);
+  const [type, setType] = useState<ToastType>("success");
+  const [title, setTitle] = useState("");
+  const [message, setMessage] = useState("Paiement reçu : 25 000 FCFA");
+  const [dark, setDark] = useState(false);
+
+  const usage = lines(
+    "KolaToast.show(",
+    "  context,",
+    `  ${dartString(message)},`,
+    title && `  title: ${dartString(title)},`,
+    `  type: KolaToastType.${type},`,
+    ");",
+  );
+
+  return (
+    <Playground
+      slug="notifications"
+      color={color}
+      usage={usage}
+      params={{ color, type, title: title || undefined, message, dark: flag(dark) }}
+      controls={
+        <>
+          <fieldset>
+            <legend className="mb-2.5 text-sm font-semibold">Type</legend>
+            <div className="grid grid-cols-2 gap-1 rounded-xl bg-chip p-1">
+              {TOAST_TYPES.map((t) => (
+                <button
+                  key={t.id}
+                  type="button"
+                  aria-pressed={type === t.id}
+                  onClick={() => setType(t.id)}
+                  className={`min-h-10 rounded-[9px] text-sm ${
+                    type === t.id ? "bg-surface font-semibold text-ink" : "text-ink-muted"
+                  }`}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+          </fieldset>
+          <ColorPicker value={color} onChange={setColor} />
+          <TextInput id="title" label="Titre (optionnel)" value={title} onChange={setTitle} />
+          <TextInput id="message" label="Message" value={message} onChange={setMessage} />
+          <Toggle label="Mode sombre" checked={dark} onChange={setDark} />
+        </>
+      }
+    />
+  );
+}
+
 export const PLAYGROUNDS: Record<string, () => React.JSX.Element> = {
   bouton: ButtonPlayground,
   "champ-de-texte": TextFieldPlayground,
   "telephone-237": PhonePlayground,
   "montant-fcfa": AmountPlayground,
   "mobile-money": MobileMoneyPlayground,
+  "date-picker": DatePickerPlayground,
+  confirmation: ConfirmPlayground,
+  notifications: ToastPlayground,
 };

@@ -7,6 +7,7 @@ void main() => runApp(const PreviewApp());
 ///   ?c=bouton&variant=outline&color=9A3324&dark=1
 ///   ?c=champ-de-texte&label=E-mail&error=1
 ///   ?c=telephone-237   ·   ?c=montant-fcfa   ·   ?c=mobile-money&amount=5000
+///   ?c=date-picker&range=1   ·   ?c=confirmation&sheet=1   ·   ?c=notifications&type=error
 class PreviewApp extends StatelessWidget {
   const PreviewApp({super.key});
 
@@ -55,6 +56,76 @@ class PreviewApp extends StatelessWidget {
             label: label ?? 'Téléphone',
             controller: TextEditingController(
               text: KolaPhoneField.format(p['value'] ?? ''),
+            ),
+          ),
+        );
+      case 'date-picker':
+        return Builder(
+          builder: (context) => Container(
+            width: 360,
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+            ),
+            child: KolaCalendar(
+              range: p['range'] != '0',
+              onConfirm: (r) => KolaToast.show(
+                context,
+                KolaDateFr.range(r.start, r.end),
+                title: 'Sélection validée',
+                type: KolaToastType.success,
+              ),
+            ),
+          ),
+        );
+      case 'confirmation':
+        return Builder(
+          builder: (context) => KolaButton(
+            label: p['button'] ?? 'Supprimer l\'article',
+            variant: p['destructive'] == '1'
+                ? KolaButtonVariant.outline
+                : KolaButtonVariant.primary,
+            onPressed: () async {
+              final ok = await KolaConfirm.show(
+                context,
+                title: label ?? 'Supprimer cet article ?',
+                message: p['message'] ?? 'Cette action est définitive.',
+                confirmLabel: p['confirm'] ?? 'Supprimer',
+                destructive: p['destructive'] == '1',
+                sheet: p['sheet'] == '1',
+              );
+              if (!context.mounted) return;
+              KolaToast.show(
+                context,
+                ok ? 'Tu as confirmé.' : 'Tu as annulé.',
+                type: ok ? KolaToastType.success : KolaToastType.info,
+              );
+            },
+          ),
+        );
+      case 'notifications':
+        final type = KolaToastType.values.firstWhere(
+          (t) => t.name == p['type'],
+          orElse: () => KolaToastType.success,
+        );
+        final title = p['title'];
+        final message = p['message'] ?? 'Paiement reçu : 25 000 FCFA';
+        return Builder(
+          builder: (context) => SizedBox(
+            width: 380,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                KolaToastView(message: message, title: title, type: type),
+                const SizedBox(height: 24),
+                KolaButton(
+                  label: 'Afficher en vrai',
+                  variant: KolaButtonVariant.secondary,
+                  onPressed: () => KolaToast.show(context, message, title: title, type: type),
+                ),
+              ],
             ),
           ),
         );
