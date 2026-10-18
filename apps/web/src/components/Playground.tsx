@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { PREVIEW_URL } from "@/lib/site";
 import { CodeBlock } from "./CodeBlock";
 
@@ -21,7 +22,27 @@ export function Playground({
 }) {
   const query = new URLSearchParams({ c: slug });
   for (const [k, v] of Object.entries(params)) if (v) query.set(k, v);
-  const previewSrc = `${PREVIEW_URL}?${query.toString()}`;
+  const queryString = query.toString();
+
+  // Aperçu instantané : la vitrine est chargée une seule fois, puis chaque
+  // changement d'option lui est envoyé par message, sans recharger Flutter.
+  const [initialSrc] = useState(() => `${PREVIEW_URL}?${queryString}`);
+  const frame = useRef<HTMLIFrameElement>(null);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    const onMessage = (e: MessageEvent) => {
+      if (e.origin !== window.location.origin || e.source !== frame.current?.contentWindow) return;
+      if (e.data === "kola-ready") setReady(true);
+    };
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  }, []);
+
+  useEffect(() => {
+    if (!ready) return;
+    frame.current?.contentWindow?.postMessage(`kola?${queryString}`, window.location.origin);
+  }, [queryString, ready]);
 
   const theme =
     color === DEFAULT_COLOR
@@ -37,8 +58,8 @@ export function Playground({
           className="flex min-w-0 flex-[999_1_560px] flex-col overflow-hidden rounded-[20px] bg-chip"
         >
           <iframe
-            key={previewSrc}
-            src={previewSrc}
+            ref={frame}
+            src={initialSrc}
             title="Aperçu"
             style={{ minHeight: height }}
             className="w-full flex-1 border-0"

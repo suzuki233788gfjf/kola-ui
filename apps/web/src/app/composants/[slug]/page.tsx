@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { COMPONENTS, getComponent } from "@/lib/components";
 import { getDartSource } from "@/lib/source";
-import { PLAYGROUNDS } from "@/components/Playgrounds";
+import { ComponentPlayground } from "@/components/Playgrounds";
 import { CodeBlock } from "@/components/CodeBlock";
 
 export function generateStaticParams() {
@@ -22,7 +22,6 @@ export default async function ComponentPage({ params }: PageProps<"/composants/[
   if (!component || !component.available || !component.file) notFound();
 
   const source = await getDartSource(component.file);
-  const ComponentPlayground = PLAYGROUNDS[component.slug];
 
   return (
     <main className="mx-auto flex max-w-[1200px] flex-col gap-8 px-6 pt-8 pb-22">
@@ -38,7 +37,7 @@ export default async function ComponentPage({ params }: PageProps<"/composants/[
         <p className="max-w-[680px] text-[17px] leading-relaxed text-ink-muted">{component.summary}</p>
       </div>
 
-      {ComponentPlayground && <ComponentPlayground />}
+      <ComponentPlayground slug={component.slug} />
 
       <section className="flex flex-col gap-4">
         <h2 className="font-display text-[28px] font-bold">Le composant</h2>

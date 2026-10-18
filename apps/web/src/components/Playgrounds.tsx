@@ -628,3 +628,10 @@ export const PLAYGROUNDS: Record<string, () => React.JSX.Element> = {
   carte: CardPlayground,
   tableau: TablePlayground,
 };
+
+/** Affiche le playground d'un composant. Rendu côté navigateur : la page serveur
+ *  ne peut pas lire l'objet PLAYGROUNDS directement. */
+export function ComponentPlayground({ slug }: { slug: string }) {
+  const Selected = PLAYGROUNDS[slug];
+  return Selected ? <Selected /> : null;
+}
