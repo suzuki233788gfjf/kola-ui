@@ -20,7 +20,7 @@ export default function Home() {
       <section className="mx-auto flex max-w-[1200px] flex-wrap items-center gap-14 px-6 pt-20 pb-18">
         <div className="flex min-w-0 flex-[1_1_460px] flex-col gap-6">
           <span className="self-start rounded-full bg-accent-tint px-3 py-1.5 text-sm font-medium text-accent">
-            Flutter d&apos;abord · React et HTML ensuite
+            Flutter et React · HTML bientôt
           </span>
           <h1 className="font-display text-5xl leading-[1.02] font-extrabold tracking-tight sm:text-6xl">
             Des composants prêts à copier. Rien à installer.
@@ -98,7 +98,7 @@ export default function Home() {
 
       <section className="mx-auto flex max-w-[1200px] flex-col gap-9 px-6 py-22">
         <div className="flex flex-wrap items-end justify-between gap-4">
-          <h2 className="font-display text-4xl font-bold tracking-tight">Les premiers composants</h2>
+          <h2 className="font-display text-4xl font-bold tracking-tight">Quelques composants</h2>
           <Link href="/composants" className="font-semibold text-accent hover:text-accent-dark">
             Tout voir →
           </Link>
@@ -109,7 +109,7 @@ export default function Home() {
               <span className="text-lg font-semibold">{c.name}</span>
               <span className="leading-relaxed text-ink-muted">{c.summary}</span>
               <span className="mt-1.5 self-start rounded-md bg-chip px-2 py-0.5 font-mono text-xs text-ink-muted">
-                {c.available ? "Flutter" : "bientôt"}
+                {c.available ? "Flutter · React" : "bientôt"}
               </span>
             </div>
           ))}

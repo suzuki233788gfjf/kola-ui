@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Bricolage_Grotesque, IBM_Plex_Sans, JetBrains_Mono } from "next/font/google";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { FrameworkProvider } from "@/components/Framework";
 import "./globals.css";
 
 const bricolage = Bricolage_Grotesque({
@@ -28,7 +29,7 @@ export const metadata: Metadata = {
     template: "%s · Kola UI",
   },
   description:
-    "Des composants Flutter prêts à copier, sans installation ni dépendance. Pensés pour nos usages : +237, FCFA, dates en français.",
+    "Des composants Flutter et React prêts à copier, sans installation ni dépendance. Pensés pour nos usages : +237, FCFA, Mobile Money, dates en français.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -38,9 +39,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${bricolage.variable} ${plex.variable} ${jetbrains.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col font-sans">
-        <Header />
-        <div className="flex-1">{children}</div>
-        <Footer />
+        <FrameworkProvider>
+          <Header />
+          <div className="flex-1">{children}</div>
+          <Footer />
+        </FrameworkProvider>
       </body>
     </html>
   );

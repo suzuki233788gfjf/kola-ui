@@ -1,4 +1,7 @@
 @import "tailwindcss";
+/* Thème des composants React Kola (aperçus React du site) */
+@import "../../../../packages/kola-react/src/kola-theme.css";
+@source "../../../../packages/kola-react/src";
 
 /* Couleurs Kola UI — identiques aux variables Figma et au thème Flutter */
 @theme {

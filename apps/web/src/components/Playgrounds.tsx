@@ -1,10 +1,33 @@
 "use client";
 
 import { useState } from "react";
-import { ColorPicker, DEFAULT_COLOR, Playground, TextInput, Toggle, dartString } from "./Playground";
+import { KolaButton } from "@kola/react/kola-button";
+import { KolaTextField } from "@kola/react/kola-text-field";
+import { KolaPhoneField } from "@kola/react/kola-phone-field";
+import { KolaAmountField, formatAmount } from "@kola/react/kola-amount-field";
+import { KolaMobileMoneyForm, KolaMobileMoneyError } from "@kola/react/kola-mobile-money-form";
+import { KolaDatePicker, KolaDateFr, type KolaDateRange } from "@kola/react/kola-date-picker";
+import { useKolaConfirm } from "@kola/react/kola-confirm";
+import { KolaToastView, useKolaToast, type KolaToastType } from "@kola/react/kola-toast";
+import { KolaSelect } from "@kola/react/kola-select";
+import { KolaCard, KolaStatCard } from "@kola/react/kola-card";
+import { KolaDataTable } from "@kola/react/kola-data-table";
+import { ColorPicker, DEFAULT_COLOR, Playground, TextInput, Toggle, dartString, jsxString } from "./Playground";
 
 const flag = (b: boolean) => (b ? "1" : undefined);
-const lines = (...l: (string | null | false)[]) => l.filter(Boolean).join("\n");
+const lines = (...l: (string | null | false | undefined)[]) => l.filter(Boolean).join("\n");
+
+/* Petites icônes pour les aperçus React (dans ton projet, utilise tes propres icônes). */
+const Svg = ({ d }: { d: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <path d={d} />
+  </svg>
+);
+const CheckIcon = () => <Svg d="M5 12.5l4.5 4.5L19 7.5" />;
+const MailIcon = () => <Svg d="M3 6h18v12H3zM3 7l9 6 9-6" />;
+const LockIcon = () => <Svg d="M6 11h12v10H6zM8 11V8a4 4 0 0 1 8 0v3" />;
+const BasketIcon = () => <Svg d="M4 10h16l-1.5 10h-13zM8 10l4-6 4 6" />;
+const MoneyIcon = () => <Svg d="M3 7h18v10H3zM12 9.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z" />;
 
 /* ---------- Bouton ---------- */
 
@@ -33,12 +56,23 @@ function ButtonPlayground() {
     "  onPressed: () {},",
     ")",
   );
+  const reactUsage = lines(
+    "<KolaButton",
+    `  ${jsxString("label", label)}`,
+    variant !== "primary" && `  variant="${variant}"`,
+    icon && "  icon={<CheckIcon />} // ton icône SVG",
+    loading && "  loading",
+    "  onClick={() => {}}",
+    "/>",
+  );
 
   return (
     <Playground
       slug="bouton"
       color={color}
       usage={usage}
+      reactUsage={reactUsage}
+      react={<KolaButton label={label} variant={variant} icon={icon ? <CheckIcon /> : undefined} loading={loading} />}
       params={{ variant, color, label, icon: flag(icon), loading: flag(loading), dark: flag(dark) }}
       controls={
         <>
@@ -94,12 +128,35 @@ function TextFieldPlayground() {
       : null,
     ")",
   );
+  const reactUsage = lines(
+    "<KolaTextField",
+    `  ${jsxString("label", label)}`,
+    !password && '  placeholder="nom@exemple.cm"',
+    helper && `  ${jsxString("helper", helper)}`,
+    icon && `  prefixIcon={<${password ? "LockIcon" : "MailIcon"} />}`,
+    password && "  obscure",
+    error && '  validate={(v) => (v.includes("@") ? null : "Adresse e-mail incomplète")}',
+    "  onChange={(valeur) => {}}",
+    "/>",
+  );
 
   return (
     <Playground
       slug="champ-de-texte"
       color={color}
       usage={usage}
+      reactUsage={reactUsage}
+      react={
+        <KolaTextField
+          className="w-full max-w-[340px]"
+          label={label}
+          placeholder={password ? undefined : "nom@exemple.cm"}
+          helper={helper || undefined}
+          prefixIcon={icon ? password ? <LockIcon /> : <MailIcon /> : undefined}
+          obscure={password}
+          error={error ? "Adresse e-mail incomplète" : null}
+        />
+      }
       params={{
         color,
         label,
@@ -140,12 +197,22 @@ function PhonePlayground() {
     "  },",
     ")",
   );
+  const reactUsage = lines(
+    "<KolaPhoneField",
+    label !== "Téléphone" && `  ${jsxString("label", label)}`,
+    "  onChange={(numero, operateur) => {",
+    '    // numero = "677123456", operateur = "mtn" | "orange" | null',
+    "  }}",
+    "/>",
+  );
 
   return (
     <Playground
       slug="telephone-237"
       color={color}
       usage={usage}
+      reactUsage={reactUsage}
+      react={<KolaPhoneField key={value} className="w-full max-w-[340px]" label={label} defaultValue={value} />}
       params={{ color, label, value: value.replace(/\D/g, "") || undefined, dark: flag(dark) }}
       controls={
         <>
@@ -180,12 +247,24 @@ function AmountPlayground() {
     "  },",
     ")",
   );
+  const sample = Number(value.replace(/\D/g, "")) || null;
+  const reactUsage = lines(
+    "<KolaAmountField",
+    label !== "Montant" && `  ${jsxString("label", label)}`,
+    "  min={100}",
+    "  onChange={(montant) => {",
+    "    // montant = 25000 (un nombre, ou null si vide)",
+    "  }}",
+    "/>",
+  );
 
   return (
     <Playground
       slug="montant-fcfa"
       color={color}
       usage={usage}
+      reactUsage={reactUsage}
+      react={<KolaAmountField key={value} className="w-full max-w-[340px]" label={label} min={100} defaultValue={sample} />}
       params={{ color, label, value: value.replace(/\D/g, "") || undefined, dark: flag(dark) }}
       controls={
         <>
@@ -201,6 +280,12 @@ function AmountPlayground() {
 
 
 /* ---------- Mobile Money ---------- */
+
+/** Simulation : 3 secondes d'attente, échec si le numéro finit par 0. */
+async function simulatePayment(demande: { phone: string }) {
+  await new Promise((r) => setTimeout(r, 3000));
+  if (demande.phone.endsWith("0")) throw new KolaMobileMoneyError("Solde insuffisant (simulation)");
+}
 
 function MobileMoneyPlayground() {
   const [color, setColor] = useState(DEFAULT_COLOR);
@@ -226,6 +311,22 @@ function MobileMoneyPlayground() {
     "  },",
     ")",
   );
+  const reactUsage = lines(
+    "<KolaMobileMoneyForm",
+    title !== "Payer par Mobile Money" && `  ${jsxString("title", title)}`,
+    fixed && amountValue && `  amount={${amountValue}}`,
+    "  onPay={async (demande) => {",
+    '    // demande.phone    → "677123456"',
+    '    // demande.operator → "mtn" ou "orange"',
+    "    // demande.amount   → 25000",
+    "    //",
+    "    // Appelle ici ton fournisseur de paiement (Campay, Notch Pay, CinetPay…)",
+    "    // depuis ton serveur, et attends que le client confirme sur son téléphone.",
+    "    // En cas d'échec :",
+    '    // throw new KolaMobileMoneyError("Solde insuffisant");',
+    "  }}",
+    "/>",
+  );
 
   return (
     <Playground
@@ -233,6 +334,16 @@ function MobileMoneyPlayground() {
       color={color}
       height={640}
       usage={usage}
+      reactUsage={reactUsage}
+      react={
+        <KolaMobileMoneyForm
+          key={`${fixed}-${amountValue}`}
+          className="max-w-[400px]"
+          title={title}
+          amount={fixed && amountValue ? Number(amountValue) : undefined}
+          onPay={simulatePayment}
+        />
+      }
       params={{
         color,
         title,
@@ -279,6 +390,24 @@ function DatePickerPlayground() {
         "  print(KolaDateFr.date(date)); // '12 oct. 2026'",
         "}",
       );
+  const reactUsage = range
+    ? lines(
+        "<KolaDatePicker",
+        '  label="Période"',
+        "  range",
+        "  onChange={({ start, end }) => {",
+        "    console.log(KolaDateFr.range(start, end)); // \"Du 12 au 16 oct. 2026\"",
+        "  }}",
+        "/>",
+      )
+    : lines(
+        "<KolaDatePicker",
+        '  label="Date de livraison"',
+        "  onChange={({ start }) => {",
+        "    console.log(KolaDateFr.date(start)); // \"12 oct. 2026\"",
+        "  }}",
+        "/>",
+      );
 
   return (
     <Playground
@@ -286,6 +415,8 @@ function DatePickerPlayground() {
       color={color}
       height={560}
       usage={usage}
+      reactUsage={reactUsage}
+      react={<DatePickerDemo key={String(range)} range={range} />}
       params={{ color, range: range ? "1" : "0", dark: flag(dark) }}
       controls={
         <>
@@ -321,6 +452,20 @@ function DatePickerPlayground() {
   );
 }
 
+function DatePickerDemo({ range }: { range: boolean }) {
+  const [value, setValue] = useState<KolaDateRange | null>(null);
+  return (
+    <div className="flex w-full max-w-[340px] flex-col gap-3">
+      <KolaDatePicker label={range ? "Période" : "Date de livraison"} range={range} value={value} onChange={setValue} />
+      <p className="text-sm text-kola-ink-subtle">
+        {value
+          ? `Sélection : ${range ? KolaDateFr.range(value.start, value.end) : KolaDateFr.date(value.start)}`
+          : "Clique sur le champ pour ouvrir le calendrier."}
+      </p>
+    </div>
+  );
+}
+
 /* ---------- Confirmation ---------- */
 
 function ConfirmPlayground() {
@@ -344,12 +489,37 @@ function ConfirmPlayground() {
     "  // l'utilisateur a confirmé",
     "}",
   );
+  const reactUsage = lines(
+    "const { confirm, dialog } = useKolaConfirm();",
+    "",
+    "async function supprimer() {",
+    "  const ok = await confirm({",
+    `    title: ${JSON.stringify(title)},`,
+    '    message: "Cette action est définitive.",',
+    `    confirmLabel: ${JSON.stringify(confirm)},`,
+    destructive && "    destructive: true,",
+    sheet && "    sheet: true,",
+    "  });",
+    "  if (ok) {",
+    "    // l'utilisateur a confirmé",
+    "  }",
+    "}",
+    "",
+    "return (",
+    "  <>",
+    "    {dialog}",
+    '    <KolaButton label="Supprimer l\'article" onClick={supprimer} />',
+    "  </>",
+    ");",
+  );
 
   return (
     <Playground
       slug="confirmation"
       color={color}
       usage={usage}
+      reactUsage={reactUsage}
+      react={<ConfirmDemo title={title} confirmLabel={confirm} destructive={destructive} sheet={sheet} />}
       params={{
         color,
         label: title,
@@ -370,6 +540,24 @@ function ConfirmPlayground() {
         </>
       }
     />
+  );
+}
+
+function ConfirmDemo(props: { title: string; confirmLabel: string; destructive: boolean; sheet: boolean }) {
+  const { confirm, dialog } = useKolaConfirm();
+  const toast = useKolaToast();
+  return (
+    <>
+      {dialog}
+      <KolaButton
+        label="Supprimer l'article"
+        variant={props.destructive ? "outline" : "primary"}
+        onClick={async () => {
+          const ok = await confirm({ ...props, message: "Cette action est définitive." });
+          toast(ok ? "Tu as confirmé." : "Tu as annulé.", { type: ok ? "success" : "info" });
+        }}
+      />
+    </>
   );
 }
 
@@ -398,12 +586,25 @@ function ToastPlayground() {
     `  type: KolaToastType.${type},`,
     ");",
   );
+  const reactUsage = lines(
+    "// Une fois, autour de ton application :",
+    "// <KolaToastProvider><App /></KolaToastProvider>",
+    "",
+    "const toast = useKolaToast();",
+    "",
+    `toast(${JSON.stringify(message)}, {`,
+    `  type: "${type}",`,
+    title && `  title: ${JSON.stringify(title)},`,
+    "});",
+  );
 
   return (
     <Playground
       slug="notifications"
       color={color}
       usage={usage}
+      reactUsage={reactUsage}
+      react={<ToastDemo type={type} title={title || undefined} message={message} />}
       params={{ color, type, title: title || undefined, message, dark: flag(dark) }}
       controls={
         <>
@@ -436,7 +637,37 @@ function ToastPlayground() {
 }
 
 
+function ToastDemo({ type, title, message }: { type: KolaToastType; title?: string; message: string }) {
+  const toast = useKolaToast();
+  return (
+    <div className="flex w-full max-w-[380px] flex-col gap-6">
+      <KolaToastView type={type} title={title} message={message} />
+      <KolaButton label="Afficher en vrai" variant="secondary" onClick={() => toast(message, { type, title })} />
+    </div>
+  );
+}
+
 /* ---------- Sélecteur ---------- */
+
+const CITIES = [
+  { value: "dla", label: "Douala", subtitle: "Littoral" },
+  { value: "yde", label: "Yaoundé", subtitle: "Centre" },
+  { value: "bfm", label: "Bafoussam", subtitle: "Ouest" },
+  { value: "bda", label: "Bamenda", subtitle: "Nord-Ouest" },
+  { value: "grg", label: "Garoua", subtitle: "Nord" },
+  { value: "mrw", label: "Maroua", subtitle: "Extrême-Nord" },
+  { value: "ngd", label: "Ngaoundéré", subtitle: "Adamaoua" },
+  { value: "btr", label: "Bertoua", subtitle: "Est" },
+  { value: "ebw", label: "Ebolowa", subtitle: "Sud" },
+  { value: "bea", label: "Buea", subtitle: "Sud-Ouest" },
+  { value: "kri", label: "Kribi", subtitle: "Sud" },
+  { value: "lmb", label: "Limbé", subtitle: "Sud-Ouest" },
+];
+
+function SelectDemo({ label }: { label: string }) {
+  const [city, setCity] = useState<string | null>(null);
+  return <KolaSelect className="w-full max-w-[340px]" label={label} options={CITIES} value={city} onChange={setCity} />;
+}
 
 function SelectPlayground() {
   const [color, setColor] = useState(DEFAULT_COLOR);
@@ -455,6 +686,20 @@ function SelectPlayground() {
     "  onChanged: (v) => setState(() => ville = v),",
     ")",
   );
+  const reactUsage = lines(
+    "const [ville, setVille] = useState<string | null>(null);",
+    "",
+    "<KolaSelect",
+    `  ${jsxString("label", label)}`,
+    "  value={ville}",
+    "  onChange={setVille}",
+    "  options={[",
+    '    { value: "dla", label: "Douala", subtitle: "Littoral" },',
+    '    { value: "yde", label: "Yaoundé", subtitle: "Centre" },',
+    '    { value: "bfm", label: "Bafoussam", subtitle: "Ouest" },',
+    "  ]}",
+    "/>",
+  );
 
   return (
     <Playground
@@ -462,6 +707,8 @@ function SelectPlayground() {
       color={color}
       height={420}
       usage={usage}
+      reactUsage={reactUsage}
+      react={<SelectDemo label={label} />}
       params={{ color, label, dark: flag(dark) }}
       controls={
         <>
@@ -512,6 +759,52 @@ function CardPlayground() {
           ")",
         );
 
+  const changeValue = Number(change.replace(",", "."));
+  const reactUsage =
+    variant === "product"
+      ? lines(
+          "<KolaCard",
+          '  media={<img src={urlImage} alt="" className="size-full object-cover" />}',
+          badge && `  ${jsxString("badge", badge)}`,
+          `  ${jsxString("title", title)}`,
+          '  subtitle="Épicerie · En stock"',
+          `  footer={${JSON.stringify(footer)}}`,
+          "  onClick={() => {}}",
+          "/>",
+        )
+      : lines(
+          "<KolaStatCard",
+          `  ${jsxString("label", statLabel)}`,
+          `  ${jsxString("value", statValue)}`,
+          change && `  change={${Number.isFinite(changeValue) ? changeValue : 0}}`,
+          "  icon={<MoneyIcon />} // ton icône SVG",
+          "/>",
+        );
+  const reactPreview =
+    variant === "product" ? (
+      <KolaCard
+        className="max-w-[280px]"
+        media={
+          <span className="[&_svg]:size-12">
+            <BasketIcon />
+          </span>
+        }
+        badge={badge || undefined}
+        title={title}
+        subtitle="Épicerie · En stock"
+        footer={footer}
+        onClick={() => {}}
+      />
+    ) : (
+      <KolaStatCard
+        className="max-w-[300px]"
+        label={statLabel}
+        value={statValue}
+        change={change && Number.isFinite(changeValue) ? changeValue : null}
+        icon={<MoneyIcon />}
+      />
+    );
+
   const params =
     variant === "product"
       ? { color, label: title, badge: badge || undefined, footer, dark: flag(dark) }
@@ -523,6 +816,8 @@ function CardPlayground() {
       color={color}
       height={420}
       usage={usage}
+      reactUsage={reactUsage}
+      react={reactPreview}
       params={params}
       controls={
         <>
@@ -572,6 +867,17 @@ function CardPlayground() {
 
 /* ---------- Tableau ---------- */
 
+const PRODUCTS = [
+  { name: "Riz parfumé 5 kg", stock: 7, price: 4500 },
+  { name: "Huile 1 L", stock: 42, price: 1600 },
+  { name: "Sucre 1 kg", stock: 18, price: 900 },
+  { name: "Lait en poudre 400 g", stock: 12, price: 2800 },
+  { name: "Savon de ménage", stock: 64, price: 350 },
+  { name: "Farine 1 kg", stock: 25, price: 700 },
+  { name: "Tomate concentrée", stock: 80, price: 250 },
+  { name: "Spaghetti 500 g", stock: 33, price: 450 },
+];
+
 function TablePlayground() {
   const [color, setColor] = useState(DEFAULT_COLOR);
   const [mobile, setMobile] = useState(false);
@@ -594,6 +900,24 @@ function TablePlayground() {
     "  ],",
     ")",
   );
+  const perPage = Number(rows) || 5;
+  const reactUsage = lines(
+    "<KolaDataTable",
+    "  rows={produits}",
+    perPage !== 8 && `  rowsPerPage={${perPage}}`,
+    "  columns={[",
+    '    { label: "Produit", cell: (p) => p.nom, sortBy: (p) => p.nom, flex: 2 },',
+    '    { label: "Stock", cell: (p) => p.stock, sortBy: (p) => p.stock, numeric: true },',
+    "    {",
+    '      label: "Prix",',
+    "      cell: (p) => `${formatAmount(p.prix)} FCFA`,",
+    "      sortBy: (p) => p.prix,",
+    "      numeric: true,",
+    "      flex: 2,",
+    "    },",
+    "  ]}",
+    "/>",
+  );
 
   return (
     <Playground
@@ -601,6 +925,21 @@ function TablePlayground() {
       color={color}
       height={mobile ? 640 : 480}
       usage={usage}
+      reactUsage={reactUsage}
+      react={
+        <div style={{ width: mobile ? 360 : 640 }} className="max-w-full">
+          <KolaDataTable
+            key={perPage}
+            rows={PRODUCTS}
+            rowsPerPage={perPage}
+            columns={[
+              { label: "Produit", cell: (p) => p.name, sortBy: (p) => p.name, flex: 2 },
+              { label: "Stock", cell: (p) => p.stock, sortBy: (p) => p.stock, numeric: true },
+              { label: "Prix", cell: (p) => `${formatAmount(p.price)} FCFA`, sortBy: (p) => p.price, numeric: true, flex: 2 },
+            ]}
+          />
+        </div>
+      }
       params={{ color, rows, mobile: flag(mobile), dark: flag(dark) }}
       controls={
         <>

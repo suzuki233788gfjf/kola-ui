@@ -5,7 +5,7 @@
 <h1 align="center">Kola UI</h1>
 
 <p align="center">
-  <strong>Des composants Flutter prêts à copier. Rien à installer.</strong><br />
+  <strong>Des composants Flutter et React prêts à copier. Rien à installer.</strong><br />
   Pensés pour nos usages : numéros +237, montants en FCFA, paiement Mobile Money.
 </p>
 
@@ -39,9 +39,12 @@ pas de mise à jour qui casse tout.
 | **Confirmation** | Boîte de dialogue ou panneau du bas, en une ligne |
 | **Notifications** | Succès, erreur, info, avertissement |
 
-Aucun composant n'ajoute de dépendance : seulement Flutter.
+Chaque composant existe en **Flutter** et en **React** (Tailwind CSS v4), avec le même comportement.
+Aucun n'ajoute de dépendance : seulement Flutter, ou seulement React + Tailwind.
 
 ## Démarrer en 2 minutes
+
+### Flutter
 
 1. Copie le thème [`kola_theme.dart`](packages/kola_flutter/lib/src/kola_theme.dart) dans `lib/kola/`.
 2. Branche-le dans ton application :
@@ -56,11 +59,26 @@ Aucun composant n'ajoute de dépendance : seulement Flutter.
 
 3. Copie le composant dont tu as besoin depuis le [catalogue](https://kola-ui.vercel.app/composants).
 
+### React
+
+Prérequis : React 18 ou plus et Tailwind CSS v4.
+
+1. Copie le thème [`kola-theme.css`](packages/kola-react/src/kola-theme.css) dans `src/components/kola/`.
+2. Importe-le dans ton CSS global, juste après Tailwind :
+
+   ```css
+   @import "tailwindcss";
+   @import "./components/kola/kola-theme.css";
+   ```
+
+3. Copie le composant dont tu as besoin (fichier `.tsx`) dans `src/components/kola/`.
+
 ## Structure du dépôt
 
 ```
 kola-ui/
-├── packages/kola_flutter/   ← les composants Flutter (source de vérité)
+├── packages/kola_flutter/   ← les composants Flutter
+├── packages/kola-react/     ← les composants React (Tailwind CSS v4)
 ├── apps/preview/            ← la vitrine Flutter Web (aperçus en direct)
 ├── apps/web/                ← le site Next.js
 └── scripts/build-preview.sh ← compile la vitrine et la place dans le site

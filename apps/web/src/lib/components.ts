@@ -5,7 +5,7 @@ export type KolaComponent = {
   name: string;
   category: Category;
   summary: string;
-  /** true quand le composant existe dans packages/kola_flutter */
+  /** true quand le composant existe (Flutter et React) */
   available: boolean;
   /** Fichier Dart du composant, relatif à packages/kola_flutter/lib/src */
   file?: string;
@@ -34,6 +34,11 @@ export const COMPONENTS: KolaComponent[] = [
   { slug: "confirmation", name: "Confirmation", category: "Retours", summary: "Boîte de dialogue ou panneau du bas, en une ligne.", available: true, file: "kola_confirm.dart" },
   { slug: "notifications", name: "Notifications", category: "Retours", summary: "Succès, erreur, info, avertissement.", available: true, file: "kola_toast.dart" },
 ];
+
+/** kola_text_field.dart → kola-text-field.tsx (même nom, convention React). */
+export function reactFile(dartFile: string) {
+  return dartFile.replace(/_/g, "-").replace(/\.dart$/, ".tsx");
+}
 
 export const CATEGORIES: Category[] = ["Formulaires", "Paiement", "Affichage", "Retours"];
 
