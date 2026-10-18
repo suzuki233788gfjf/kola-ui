@@ -1,4 +1,4 @@
-export type Category = "Formulaires" | "Affichage" | "Retours";
+export type Category = "Formulaires" | "Paiement" | "Affichage" | "Retours";
 
 export type KolaComponent = {
   slug: string;
@@ -20,13 +20,22 @@ export const COMPONENTS: KolaComponent[] = [
   { slug: "date-picker", name: "Date picker", category: "Formulaires", summary: "Une date ou une période, en français.", available: false },
   { slug: "telephone-237", name: "Téléphone +237", category: "Formulaires", summary: "Formatage automatique et détection MTN / Orange.", available: true, file: "kola_phone_field.dart", requires: ["kola_text_field.dart"] },
   { slug: "montant-fcfa", name: "Montant FCFA", category: "Formulaires", summary: "Séparateur de milliers à la saisie, sans décimales.", available: true, file: "kola_amount_field.dart", requires: ["kola_text_field.dart"] },
+  {
+    slug: "mobile-money",
+    name: "Formulaire Mobile Money",
+    category: "Paiement",
+    summary: "MTN MoMo et Orange Money : saisie, attente de confirmation, succès, échec.",
+    available: true,
+    file: "kola_mobile_money_form.dart",
+    requires: ["kola_text_field.dart", "kola_phone_field.dart", "kola_amount_field.dart"],
+  },
   { slug: "carte", name: "Carte", category: "Affichage", summary: "Produit, statistique ou profil.", available: false },
   { slug: "tableau", name: "Tableau de données", category: "Affichage", summary: "Tri, pagination, cartes sur mobile.", available: false },
   { slug: "confirmation", name: "Confirmation", category: "Retours", summary: "Boîte de dialogue ou bottom sheet en une ligne.", available: false },
   { slug: "notifications", name: "Notifications", category: "Retours", summary: "Succès, erreur, info, avertissement.", available: false },
 ];
 
-export const CATEGORIES: Category[] = ["Formulaires", "Affichage", "Retours"];
+export const CATEGORIES: Category[] = ["Formulaires", "Paiement", "Affichage", "Retours"];
 
 export function getComponent(slug: string) {
   return COMPONENTS.find((c) => c.slug === slug);

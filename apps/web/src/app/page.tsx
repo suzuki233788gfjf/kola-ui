@@ -11,7 +11,7 @@ const LOCAL = [
   ["Téléphone +237", "Formatage automatique et détection de l'opérateur MTN ou Orange.", false],
   ["Montant FCFA", "Séparateur de milliers à la saisie, sans décimales, valeur numérique propre.", false],
   ["Dates en français", "Semaine qui commence le lundi, mois et jours en français par défaut.", false],
-  ["Mobile Money", "Un formulaire de paiement prêt à brancher sur ton fournisseur.", true],
+  ["Mobile Money", "Un formulaire de paiement MTN MoMo et Orange Money, prêt à brancher sur ton fournisseur.", false],
 ] as const;
 
 export default function Home() {

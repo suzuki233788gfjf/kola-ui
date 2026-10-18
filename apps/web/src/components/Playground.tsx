@@ -10,8 +10,10 @@ export function Playground({
   controls,
   usage,
   color,
+  height = 360,
 }: {
   slug: string;
+  height?: number;
   params: Record<string, string | undefined>;
   controls: React.ReactNode;
   usage: string;
@@ -31,9 +33,16 @@ export function Playground({
       <div className="flex flex-wrap gap-6">
         <section
           aria-label="Aperçu"
-          className="flex min-h-[360px] min-w-0 flex-[999_1_560px] flex-col overflow-hidden rounded-[20px] bg-chip"
+          style={{ minHeight: height }}
+          className="flex min-w-0 flex-[999_1_560px] flex-col overflow-hidden rounded-[20px] bg-chip"
         >
-          <iframe key={previewSrc} src={previewSrc} title="Aperçu" className="min-h-[360px] w-full flex-1 border-0" />
+          <iframe
+            key={previewSrc}
+            src={previewSrc}
+            title="Aperçu"
+            style={{ minHeight: height }}
+            className="w-full flex-1 border-0"
+          />
         </section>
         <aside
           aria-label="Options"

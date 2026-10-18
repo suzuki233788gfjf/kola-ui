@@ -47,15 +47,27 @@ export default async function ComponentPage({ params }: PageProps<"/composants/[
           projet. Il a besoin du thème Kola (voir{" "}
           <Link href="/demarrer" className="text-accent hover:text-accent-dark">Démarrer</Link>).
         </p>
-        {component.requires?.map((f) => (
-          <p key={f} className="rounded-xl bg-accent-tint px-4 py-3 text-ink">
-            Ce composant utilise aussi <code className="font-mono text-sm">{f}</code> : copie-le depuis la page{" "}
-            <Link href="/composants/champ-de-texte" className="font-semibold text-accent hover:text-accent-dark">
-              Champ de texte
-            </Link>
-            .
-          </p>
-        ))}
+        {component.requires && component.requires.length > 0 && (
+          <div className="rounded-xl bg-accent-tint px-4 py-3 text-ink">
+            Ce composant utilise aussi :{" "}
+            {component.requires.map((f, i) => {
+              const dep = COMPONENTS.find((c) => c.file === f);
+              return (
+                <span key={f}>
+                  {i > 0 && ", "}
+                  {dep ? (
+                    <Link href={`/composants/${dep.slug}`} className="font-semibold text-accent hover:text-accent-dark">
+                      {dep.name}
+                    </Link>
+                  ) : (
+                    <code className="font-mono text-sm">{f}</code>
+                  )}
+                </span>
+              );
+            })}
+            . Copie aussi leurs fichiers dans <code className="font-mono text-sm">lib/kola/</code>.
+          </div>
+        )}
         <CodeBlock filename={`lib/kola/${component.file}`} code={source} />
       </section>
     </main>

@@ -6,7 +6,7 @@ void main() => runApp(const PreviewApp());
 /// Vitrine Kola UI. Le composant et ses options viennent de l'adresse, par exemple :
 ///   ?c=bouton&variant=outline&color=9A3324&dark=1
 ///   ?c=champ-de-texte&label=E-mail&error=1
-///   ?c=telephone-237   ·   ?c=montant-fcfa
+///   ?c=telephone-237   ·   ?c=montant-fcfa   ·   ?c=mobile-money&amount=5000
 class PreviewApp extends StatelessWidget {
   const PreviewApp({super.key});
 
@@ -22,7 +22,7 @@ class PreviewApp extends StatelessWidget {
       themeMode: p['dark'] == '1' ? ThemeMode.dark : ThemeMode.light,
       home: Scaffold(
         body: Center(
-          child: Padding(
+          child: SingleChildScrollView(
             padding: const EdgeInsets.all(24),
             child: _component(p),
           ),
@@ -56,6 +56,21 @@ class PreviewApp extends StatelessWidget {
             controller: TextEditingController(
               text: KolaPhoneField.format(p['value'] ?? ''),
             ),
+          ),
+        );
+      case 'mobile-money':
+        return SizedBox(
+          width: 380,
+          child: KolaMobileMoneyForm(
+            title: p['title'] ?? 'Payer par Mobile Money',
+            amount: int.tryParse(p['amount'] ?? ''),
+            onPay: (demande) async {
+              // Simulation : 3 secondes d'attente, échec si le numéro finit par 0.
+              await Future<void>.delayed(const Duration(seconds: 3));
+              if (demande.phone.endsWith('0')) {
+                throw const KolaMobileMoneyException('Solde insuffisant (simulation)');
+              }
+            },
           ),
         );
       case 'montant-fcfa':

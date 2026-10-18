@@ -199,9 +199,69 @@ function AmountPlayground() {
   );
 }
 
+
+/* ---------- Mobile Money ---------- */
+
+function MobileMoneyPlayground() {
+  const [color, setColor] = useState(DEFAULT_COLOR);
+  const [title, setTitle] = useState("Payer par Mobile Money");
+  const [fixed, setFixed] = useState(false);
+  const [amount, setAmount] = useState("5000");
+  const [dark, setDark] = useState(false);
+  const amountValue = amount.replace(/\D/g, "");
+
+  const usage = lines(
+    "KolaMobileMoneyForm(",
+    title !== "Payer par Mobile Money" && `  title: ${dartString(title)},`,
+    fixed && amountValue && `  amount: ${amountValue},`,
+    "  onPay: (demande) async {",
+    "    // demande.phone    → '677123456'",
+    "    // demande.operator → KolaOperator.mtn ou KolaOperator.orange",
+    "    // demande.amount   → 25000",
+    "    //",
+    "    // Appelle ici ton fournisseur de paiement (Campay, Notch Pay, CinetPay…)",
+    "    // et attends que le client confirme sur son téléphone.",
+    "    // En cas d'échec :",
+    "    // throw const KolaMobileMoneyException('Solde insuffisant');",
+    "  },",
+    ")",
+  );
+
+  return (
+    <Playground
+      slug="mobile-money"
+      color={color}
+      height={640}
+      usage={usage}
+      params={{
+        color,
+        title,
+        amount: fixed ? amountValue || undefined : undefined,
+        dark: flag(dark),
+      }}
+      controls={
+        <>
+          <ColorPicker value={color} onChange={setColor} />
+          <TextInput id="title" label="Titre" value={title} onChange={setTitle} />
+          <Toggle label="Montant imposé" checked={fixed} onChange={setFixed} />
+          {fixed && (
+            <TextInput id="amount" label="Montant (FCFA)" value={amount} onChange={setAmount} inputMode="numeric" />
+          )}
+          <Toggle label="Mode sombre" checked={dark} onChange={setDark} />
+          <p className="text-sm leading-relaxed text-ink-muted">
+            L&apos;aperçu simule le paiement : 3 secondes d&apos;attente, puis succès. Un numéro qui finit par{" "}
+            <code className="font-mono">0</code> simule un échec.
+          </p>
+        </>
+      }
+    />
+  );
+}
+
 export const PLAYGROUNDS: Record<string, () => React.JSX.Element> = {
   bouton: ButtonPlayground,
   "champ-de-texte": TextFieldPlayground,
   "telephone-237": PhonePlayground,
   "montant-fcfa": AmountPlayground,
+  "mobile-money": MobileMoneyPlayground,
 };
