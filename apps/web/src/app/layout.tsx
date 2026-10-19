@@ -3,6 +3,7 @@ import { Bricolage_Grotesque, IBM_Plex_Sans, JetBrains_Mono } from "next/font/go
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { FrameworkProvider } from "@/components/Framework";
+import { SITE_DESCRIPTION, SITE_URL } from "@/lib/site";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
@@ -29,8 +30,21 @@ export const metadata: Metadata = {
     default: "Kola UI — composants prêts à copier",
     template: "%s · Kola UI",
   },
-  description:
-    "Des composants Flutter, React, Vue et HTML prêts à copier, sans installation ni dépendance. Pensés pour nos usages : +237, FCFA, Mobile Money, dates en français.",
+  description: SITE_DESCRIPTION,
+  metadataBase: new URL(SITE_URL),
+  applicationName: "Kola UI",
+  keywords: ["composants", "UI", "Flutter", "React", "Vue", "HTML", "Tailwind", "Mobile Money", "MTN MoMo", "Orange Money", "FCFA", "Cameroun", "+237"],
+  // Aperçu quand on partage le lien (WhatsApp, LinkedIn, Facebook…). L'image vient de app/opengraph-image.png.
+  openGraph: {
+    type: "website",
+    siteName: "Kola UI",
+    locale: "fr_FR",
+    url: "/",
+    title: "Kola UI — composants prêts à copier",
+    description: SITE_DESCRIPTION,
+  },
+  twitter: { card: "summary_large_image", title: "Kola UI — composants prêts à copier", description: SITE_DESCRIPTION },
+  alternates: { canonical: "/" },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

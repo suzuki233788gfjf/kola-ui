@@ -2,11 +2,15 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getSource } from "@/lib/source";
 import { CodeBlock } from "@/components/CodeBlock";
+import { SHARE_IMAGE } from "@/lib/site";
 import { FrameworkTabs, FrameworkView } from "@/components/Framework";
 
 export const metadata: Metadata = {
   title: "Démarrer",
   description: "Intégrer Kola UI dans un projet Flutter, React, Vue ou HTML en deux minutes.",
+  openGraph: { title: "Démarrer · Kola UI", description: "Intégrer Kola UI dans un projet Flutter, React, Vue ou HTML en deux minutes.", url: "/demarrer", images: [SHARE_IMAGE] },
+  twitter: { card: "summary_large_image", images: [SHARE_IMAGE], title: "Démarrer · Kola UI", description: "Intégrer Kola UI dans un projet Flutter, React, Vue ou HTML en deux minutes." },
+  alternates: { canonical: "/demarrer" },
 };
 
 export default async function DemarrerPage() {

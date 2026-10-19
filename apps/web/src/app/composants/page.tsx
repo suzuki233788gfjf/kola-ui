@@ -1,10 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { CATEGORIES, COMPONENTS } from "@/lib/components";
+import { SHARE_IMAGE } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Composants",
   description: "Tous les composants Kola UI, à tester en direct puis copier.",
+  openGraph: { title: "Composants · Kola UI", description: "Tous les composants Kola UI, à tester en direct puis copier.", url: "/composants", images: [SHARE_IMAGE] },
+  twitter: { card: "summary_large_image", images: [SHARE_IMAGE], title: "Composants · Kola UI", description: "Tous les composants Kola UI, à tester en direct puis copier." },
+  alternates: { canonical: "/composants" },
 };
 
 export default function CataloguePage() {

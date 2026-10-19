@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { COMPONENTS, THEME_FILE, TARGET_FOLDER, dependencyOrder, getComponent, type KolaComponent } from "@/lib/components";
 import { getSource } from "@/lib/source";
+import { SHARE_IMAGE } from "@/lib/site";
 import { ComponentPlayground } from "@/components/Playgrounds";
 import { CodeBlock } from "@/components/CodeBlock";
 import { FrameworkTabs, FrameworkView } from "@/components/Framework";
@@ -15,7 +16,15 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps<"/composants/[slug]">): Promise<Metadata> {
   const { slug } = await params;
   const c = getComponent(slug);
-  return { title: c?.name ?? "Composant", description: c?.summary };
+  if (!c) return { title: "Composant" };
+  const description = `${c.summary} En Flutter, React, Vue et HTML, prêt à copier.`;
+  return {
+    title: c.name,
+    description,
+    openGraph: { title: `${c.name} · Kola UI`, description, url: `/composants/${c.slug}`, images: [SHARE_IMAGE] },
+    twitter: { card: "summary_large_image", images: [SHARE_IMAGE], title: `${c.name} · Kola UI`, description },
+    alternates: { canonical: `/composants/${c.slug}` },
+  };
 }
 
 /** CSS et JS HTML (thème + dépendances + composant), pour l'aperçu HTML. */
