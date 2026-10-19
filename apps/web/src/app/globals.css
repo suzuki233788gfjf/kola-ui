@@ -31,3 +31,18 @@ body {
   background: var(--color-bg);
   color: var(--color-ink);
 }
+
+/* Mascotte de la page 404 : petites animations, coupées si l'utilisateur préfère moins de mouvement */
+@keyframes kola-float { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(-8px) } }
+@keyframes kola-shadow { 0%, 100% { transform: scaleX(1); opacity: 1 } 50% { transform: scaleX(.85); opacity: .7 } }
+@keyframes kola-blink { 0%, 92%, 100% { transform: scaleY(1) } 95% { transform: scaleY(.1) } }
+@keyframes kola-bob { 0%, 100% { transform: translateY(0) rotate(-6deg) } 50% { transform: translateY(-6px) rotate(6deg) } }
+@keyframes kola-leaf { 0%, 100% { transform: rotate(0) } 50% { transform: rotate(-8deg) } }
+.kola-body { animation: kola-float 3.2s ease-in-out infinite; }
+.kola-shadow { transform-box: fill-box; transform-origin: center; animation: kola-shadow 3.2s ease-in-out infinite; }
+.kola-blink { transform-box: fill-box; transform-origin: center; animation: kola-blink 4.5s infinite; }
+.kola-bob { animation: kola-bob 2.6s ease-in-out infinite; }
+.kola-leaf { transform-box: fill-box; transform-origin: 0% 100%; animation: kola-leaf 2.6s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .kola-body, .kola-shadow, .kola-blink, .kola-bob, .kola-leaf { animation: none; }
+}
