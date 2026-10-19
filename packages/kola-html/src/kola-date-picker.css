@@ -1,0 +1,31 @@
+/* Kola UI — Date picker (s'appuie sur kola-text-field.css). */
+.kola-date__trigger {
+  display: flex; align-items: center; gap: 10px; width: 100%; min-height: 48px; padding: 0 14px;
+  border: 1px solid var(--kola-line-strong); border-radius: var(--kola-radius);
+  background: var(--kola-surface); color: var(--kola-ink-subtle); font: inherit; text-align: left; cursor: pointer;
+}
+.kola-date__trigger:hover { border-color: var(--kola-ink-subtle); }
+.kola-date__trigger:focus-visible { outline: none; border-color: var(--kola-primary); box-shadow: 0 0 0 1px var(--kola-primary); }
+.kola-date__trigger.has-value { color: var(--kola-ink); }
+.kola-date__trigger svg { width: 20px; height: 20px; color: var(--kola-ink-subtle); }
+.kola-cal { display: flex; flex-direction: column; gap: 16px; width: 100%; max-width: 360px; padding: 20px; color: var(--kola-ink); }
+.kola-cal__caption { margin: 0; font-size: 0.875rem; color: var(--kola-ink-subtle); }
+.kola-cal__summary { margin: 0; font-size: 1.125rem; font-weight: 700; }
+.kola-cal__nav { display: flex; align-items: center; justify-content: space-between; }
+.kola-cal__month { font-weight: 600; text-transform: capitalize; }
+.kola-cal__grid { display: grid; grid-template-columns: repeat(7, 1fr); row-gap: 4px; text-align: center; }
+.kola-cal__wd { padding: 4px 0; font-size: 0.75rem; font-weight: 600; color: var(--kola-ink-subtle); }
+.kola-cal__cell { display: flex; justify-content: center; }
+.kola-cal__cell.in-range { background: var(--kola-tint); }
+.kola-cal__cell.range-start { background: linear-gradient(90deg, transparent 50%, var(--kola-tint) 50%); }
+.kola-cal__cell.range-end { background: linear-gradient(90deg, var(--kola-tint) 50%, transparent 50%); }
+.kola-cal__day {
+  width: 40px; height: 40px; border: 0; border-radius: 50%; background: transparent;
+  color: var(--kola-ink); font: inherit; font-size: 0.875rem; cursor: pointer;
+}
+.kola-cal__day:hover { background: color-mix(in srgb, var(--kola-primary) 15%, transparent); }
+.kola-cal__day.is-today { color: var(--kola-primary); font-weight: 600; box-shadow: inset 0 0 0 1px var(--kola-primary); }
+.kola-cal__day[aria-pressed="true"] { background: var(--kola-primary); color: var(--kola-on-primary); font-weight: 600; box-shadow: none; }
+.kola-cal__day:disabled { opacity: 0.3; cursor: default; background: transparent; }
+.kola-cal__actions { display: flex; justify-content: flex-end; gap: 8px; }
+.kola-cal__actions .kola-btn { min-height: 44px; }

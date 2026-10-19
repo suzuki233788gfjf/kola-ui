@@ -10,9 +10,9 @@ import { KolaDatePicker, KolaDateFr, type KolaDateRange } from "@kola/react/kola
 import { useKolaConfirm } from "@kola/react/kola-confirm";
 import { KolaToastView, useKolaToast, type KolaToastType } from "@kola/react/kola-toast";
 import { KolaSelect } from "@kola/react/kola-select";
-import { KolaCard, KolaStatCard } from "@kola/react/kola-card";
+import { KolaCard, KolaStatCard, formatChange } from "@kola/react/kola-card";
 import { KolaDataTable } from "@kola/react/kola-data-table";
-import { ColorPicker, DEFAULT_COLOR, Playground, TextInput, Toggle, dartString, jsxString } from "./Playground";
+import { ColorPicker, DEFAULT_COLOR, HtmlAssetsContext, Playground, TextInput, Toggle, dartString, jsxString } from "./Playground";
 
 const flag = (b: boolean) => (b ? "1" : undefined);
 const lines = (...l: (string | null | false | undefined)[]) => l.filter(Boolean).join("\n");
@@ -23,6 +23,21 @@ const Svg = ({ d }: { d: string }) => (
     <path d={d} />
   </svg>
 );
+/** Échappe un texte pour du HTML. */
+const esc = (t: string) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+/** Attribut texte d'un template Vue. */
+const vAttr = (name: string, value: string) => `${name}="${esc(value)}"`;
+/** Chaîne JS sûre dans un <script> HTML. */
+const js = (t: string) => JSON.stringify(t).replace(/</g, "\\u003c");
+const box = (width: number, html: string) => `<div style="width:${width}px;max-width:100%">\n${html}\n</div>`;
+const SVG = (d: string) =>
+  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d}"/></svg>`;
+const CHECK_SVG = SVG("M5 12.5l4.5 4.5L19 7.5");
+const MAIL_SVG = SVG("M3 6h18v12H3zM3 7l9 6 9-6");
+const LOCK_SVG = SVG("M6 11h12v10H6zM8 11V8a4 4 0 0 1 8 0v3");
+const BASKET_SVG = SVG("M4 10h16l-1.5 10h-13zM8 10l4-6 4 6");
+const MONEY_SVG = SVG("M3 7h18v10H3zM12 9.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z");
+
 const CheckIcon = () => <Svg d="M5 12.5l4.5 4.5L19 7.5" />;
 const MailIcon = () => <Svg d="M3 6h18v12H3zM3 7l9 6 9-6" />;
 const LockIcon = () => <Svg d="M6 11h12v10H6zM8 11V8a4 4 0 0 1 8 0v3" />;
@@ -66,12 +81,31 @@ function ButtonPlayground() {
     "/>",
   );
 
+  const vueUsage = lines(
+    "<KolaButton",
+    `  ${vAttr("label", label)}`,
+    variant !== "primary" && `  variant="${variant}"`,
+    loading && "  loading",
+    '  @click="valider"',
+    icon ? ">\n  <template #icon><CheckIcon /></template>\n</KolaButton>" : "/>",
+  );
+  const htmlUsage = lines(
+    `<button type="button" class="kola-btn kola-btn--${variant}${loading ? " is-loading" : ""}">`,
+    loading ? '  <span class="kola-spinner" aria-hidden="true"></span>' : icon && `  ${CHECK_SVG}`,
+    `  ${esc(label)}`,
+    "</button>",
+  );
+  const htmlPreview = undefined;
+
   return (
     <Playground
       slug="bouton"
       color={color}
       usage={usage}
       reactUsage={reactUsage}
+      vueUsage={vueUsage}
+      htmlUsage={htmlUsage}
+      htmlPreview={htmlPreview}
       react={<KolaButton label={label} variant={variant} icon={icon ? <CheckIcon /> : undefined} loading={loading} />}
       params={{ variant, color, label, icon: flag(icon), loading: flag(loading), dark: flag(dark) }}
       controls={
@@ -140,12 +174,37 @@ function TextFieldPlayground() {
     "/>",
   );
 
+  const vueUsage = lines(
+    "<KolaTextField",
+    '  v-model="email"',
+    `  ${vAttr("label", label)}`,
+    !password && '  placeholder="nom@exemple.cm"',
+    helper && `  ${vAttr("helper", helper)}`,
+    password && "  obscure",
+    error && `  :validate="(v) => (v.includes('@') ? null : 'Adresse e-mail incomplète')"`,
+    icon ? `>\n  <template #icon><${password ? "LockIcon" : "MailIcon"} /></template>\n</KolaTextField>` : "/>",
+  );
+  const htmlUsage = lines(
+    `<div class="kola-field${error ? " is-invalid" : ""}">`,
+    `  <label class="kola-field__label" for="email">${esc(label)}</label>`,
+    '  <div class="kola-field__box">',
+    icon && `    ${password ? LOCK_SVG : MAIL_SVG}`,
+    `    <input class="kola-field__input" id="email" name="email" type="${password ? "password" : "email"}"${password ? " data-kola-toggle" : ' placeholder="nom@exemple.cm"'} required data-error="${password ? "Mot de passe requis" : "Adresse e-mail incomplète"}">`,
+    "  </div>",
+    error ? '  <p class="kola-field__help">Adresse e-mail incomplète</p>' : helper && `  <p class="kola-field__help">${esc(helper)}</p>`,
+    "</div>",
+  );
+  const htmlPreview = box(340, htmlUsage);
+
   return (
     <Playground
       slug="champ-de-texte"
       color={color}
       usage={usage}
       reactUsage={reactUsage}
+      vueUsage={vueUsage}
+      htmlUsage={htmlUsage}
+      htmlPreview={htmlPreview}
       react={
         <KolaTextField
           className="w-full max-w-[340px]"
@@ -206,12 +265,31 @@ function PhonePlayground() {
     "/>",
   );
 
+  const digits = value.replace(/\D/g, "");
+  const vueUsage = lines(
+    `<KolaPhoneField v-model="numero"${label !== "Téléphone" ? " " + vAttr("label", label) : ""} />`,
+    '<!-- numero = "677123456" (sans espaces) -->',
+  );
+  const htmlUsage = lines(
+    '<div class="kola-field" data-kola-phone>',
+    `  <label class="kola-field__label" for="tel">${esc(label)}</label>`,
+    '  <div class="kola-field__box">',
+    '    <span class="kola-field__prefix">+237</span>',
+    `    <input class="kola-field__input" id="tel" name="telephone" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="6 XX XX XX XX"${digits ? ` value="${digits}"` : ""}>`,
+    "  </div>",
+    "</div>",
+  );
+  const htmlPreview = box(340, htmlUsage);
+
   return (
     <Playground
       slug="telephone-237"
       color={color}
       usage={usage}
       reactUsage={reactUsage}
+      vueUsage={vueUsage}
+      htmlUsage={htmlUsage}
+      htmlPreview={htmlPreview}
       react={<KolaPhoneField key={value} className="w-full max-w-[340px]" label={label} defaultValue={value} />}
       params={{ color, label, value: value.replace(/\D/g, "") || undefined, dark: flag(dark) }}
       controls={
@@ -258,12 +336,30 @@ function AmountPlayground() {
     "/>",
   );
 
+  const vueUsage = lines(
+    `<KolaAmountField v-model="montant"${label !== "Montant" ? " " + vAttr("label", label) : ""} :min="100" />`,
+    "<!-- montant = 25000 (un nombre, ou null si vide) -->",
+  );
+  const htmlUsage = lines(
+    '<div class="kola-field" data-kola-amount data-min="100">',
+    `  <label class="kola-field__label" for="montant">${esc(label)}</label>`,
+    '  <div class="kola-field__box">',
+    `    <input class="kola-field__input" id="montant" name="montant" placeholder="0"${sample ? ` value="${sample}"` : ""}>`,
+    '    <span class="kola-field__suffix">FCFA</span>',
+    "  </div>",
+    "</div>",
+  );
+  const htmlPreview = box(340, htmlUsage);
+
   return (
     <Playground
       slug="montant-fcfa"
       color={color}
       usage={usage}
       reactUsage={reactUsage}
+      vueUsage={vueUsage}
+      htmlUsage={htmlUsage}
+      htmlPreview={htmlPreview}
       react={<KolaAmountField key={value} className="w-full max-w-[340px]" label={label} min={100} defaultValue={sample} />}
       params={{ color, label, value: value.replace(/\D/g, "") || undefined, dark: flag(dark) }}
       controls={
@@ -328,6 +424,48 @@ function MobileMoneyPlayground() {
     "/>",
   );
 
+  const vueUsage = lines(
+    "<KolaMobileMoneyForm",
+    title !== "Payer par Mobile Money" && `  ${vAttr("title", title)}`,
+    fixed && amountValue && `  :amount="${amountValue}"`,
+    '  :on-pay="payer"',
+    "/>",
+    "",
+    '<script setup lang="ts">',
+    'import KolaMobileMoneyForm, { KolaMobileMoneyError } from "./kola/KolaMobileMoneyForm.vue";',
+    "",
+    "async function payer(demande) {",
+    '  // demande.phone → "677123456", demande.operator → "mtn" ou "orange", demande.amount → 25000',
+    "  // Appelle ici ton serveur, qui parle à ton fournisseur (Campay, Notch Pay, CinetPay…).",
+    '  // En cas d\'échec : throw new KolaMobileMoneyError("Solde insuffisant");',
+    "}",
+    "</script>",
+  );
+  const htmlUsage = lines(
+    '<div id="paiement"></div>',
+    "<script>",
+    '  KolaMobileMoney(document.getElementById("paiement"), {',
+    title !== "Payer par Mobile Money" && `    title: ${js(title)},`,
+    fixed && amountValue && `    amount: ${amountValue},`,
+    "    onPay: async (demande) => {",
+    '      // demande.phone → "677123456", demande.operator → "mtn" ou "orange", demande.amount → 25000',
+    "      // Appelle ici ton serveur, qui parle à ton fournisseur (Campay, Notch Pay, CinetPay…).",
+    '      // En cas d\'échec : throw new KolaMobileMoneyError("Solde insuffisant");',
+    "    },",
+    "  });",
+    "</script>",
+  );
+  const htmlPreview = `<div id="paiement" style="width:400px;max-width:100%"></div>
+<script>
+KolaMobileMoney(document.getElementById("paiement"), {
+  title: ${js(title)},${fixed && amountValue ? ` amount: ${amountValue},` : ""}
+  onPay: async (d) => {
+    await new Promise((r) => setTimeout(r, 3000));
+    if (d.phone.endsWith("0")) throw new KolaMobileMoneyError("Solde insuffisant (simulation)");
+  },
+});
+</script>`;
+
   return (
     <Playground
       slug="mobile-money"
@@ -335,6 +473,9 @@ function MobileMoneyPlayground() {
       height={640}
       usage={usage}
       reactUsage={reactUsage}
+      vueUsage={vueUsage}
+      htmlUsage={htmlUsage}
+      htmlPreview={htmlPreview}
       react={
         <KolaMobileMoneyForm
           key={`${fixed}-${amountValue}`}
@@ -409,6 +550,31 @@ function DatePickerPlayground() {
         "/>",
       );
 
+  const vueUsage = range
+    ? lines('<KolaDatePicker v-model="periode" label="Période" range />', "<!-- periode = { start: Date, end: Date } -->")
+    : lines('<KolaDatePicker v-model="livraison" label="Date de livraison" />', "<!-- livraison = { start: Date, end: Date } (start = end) -->");
+  const htmlUsage = lines(
+    range
+      ? '<div data-kola-date data-label="Période" data-range data-name="periode"></div>'
+      : '<div data-kola-date data-label="Date de livraison" data-name="livraison"></div>',
+    "",
+    "<!-- Dans ton formulaire, le champ caché vaut " + (range ? '"2026-10-12/2026-10-16"' : '"2026-10-12"') + ". -->",
+    "<script>",
+    '  document.addEventListener("kola-change", (e) => {',
+    range ? "    console.log(KolaDateFr.range(e.detail.start, e.detail.end)); // \"Du 12 au 16 oct. 2026\"" : "    console.log(KolaDateFr.date(e.detail.start)); // \"12 oct. 2026\"",
+    "  });",
+    "</script>",
+  );
+  const htmlPreview = `<div style="width:340px;max-width:100%;display:flex;flex-direction:column;gap:12px">
+${range ? '<div data-kola-date data-label="Période" data-range></div>' : '<div data-kola-date data-label="Date de livraison"></div>'}
+<p id="resultat" style="margin:0;font-size:14px;color:var(--kola-ink-subtle)">Clique sur le champ pour ouvrir le calendrier.</p>
+</div>
+<script>
+document.addEventListener("kola-change", (e) => {
+  document.getElementById("resultat").textContent = "Sélection : " + ${range ? "KolaDateFr.range(e.detail.start, e.detail.end)" : "KolaDateFr.date(e.detail.start)"};
+});
+</script>`;
+
   return (
     <Playground
       slug="date-picker"
@@ -416,6 +582,9 @@ function DatePickerPlayground() {
       height={560}
       usage={usage}
       reactUsage={reactUsage}
+      vueUsage={vueUsage}
+      htmlUsage={htmlUsage}
+      htmlPreview={htmlPreview}
       react={<DatePickerDemo key={String(range)} range={range} />}
       params={{ color, range: range ? "1" : "0", dark: flag(dark) }}
       controls={
@@ -513,12 +682,59 @@ function ConfirmPlayground() {
     ");",
   );
 
+  const confirmOptions = (indent: string) =>
+    [
+      `${indent}title: ${js(title)},`,
+      `${indent}message: "Cette action est définitive.",`,
+      `${indent}confirmLabel: ${js(confirm)},`,
+      destructive && `${indent}destructive: true,`,
+      sheet && `${indent}sheet: true,`,
+    ].filter(Boolean) as string[];
+  const vueUsage = lines(
+    '<KolaConfirm ref="confirmer" />',
+    '<KolaButton label="Supprimer l\'article" @click="supprimer" />',
+    "",
+    '<script setup lang="ts">',
+    'import { ref } from "vue";',
+    "",
+    "const confirmer = ref();",
+    "",
+    "async function supprimer() {",
+    "  const ok = await confirmer.value.open({",
+    ...confirmOptions("    "),
+    "  });",
+    "  if (ok) {",
+    "    // l'utilisateur a confirmé",
+    "  }",
+    "}",
+    "</script>",
+  );
+  const htmlUsage = lines(
+    `<button type="button" class="kola-btn kola-btn--${destructive ? "outline" : "primary"}" id="supprimer">Supprimer l'article</button>`,
+    "<script>",
+    '  document.getElementById("supprimer").addEventListener("click", async () => {',
+    "    const ok = await kolaConfirm({",
+    ...confirmOptions("      "),
+    "    });",
+    "    if (ok) {",
+    "      // l'utilisateur a confirmé",
+    "    }",
+    "  });",
+    "</script>",
+  );
+  const htmlPreview = htmlUsage
+    .replace('<script>', '<p id="resultat" style="margin:0;font-size:14px;color:var(--kola-ink-subtle)">Clique sur le bouton pour ouvrir la confirmation.</p>\n<script>')
+    .replace("    if (ok) {\n      // l'utilisateur a confirmé\n    }", '    document.getElementById("resultat").textContent = ok ? "Tu as confirmé." : "Tu as annulé.";');
+
   return (
     <Playground
       slug="confirmation"
       color={color}
       usage={usage}
       reactUsage={reactUsage}
+      vueUsage={vueUsage}
+      htmlUsage={htmlUsage}
+      htmlPreview={htmlPreview}
       react={<ConfirmDemo title={title} confirmLabel={confirm} destructive={destructive} sheet={sheet} />}
       params={{
         color,
@@ -598,12 +814,34 @@ function ToastPlayground() {
     "});",
   );
 
+  const toastOptions = `{ type: "${type}"${title ? `, title: ${js(title)}` : ""} }`;
+  const vueUsage = lines(
+    "<!-- Une fois, dans App.vue : <KolaToaster /> -->",
+    "",
+    '<script setup lang="ts">',
+    'import { useKolaToast } from "./kola/KolaToaster.vue";',
+    "",
+    "const toast = useKolaToast();",
+    `toast(${js(message)}, ${toastOptions});`,
+    "</script>",
+  );
+  const htmlUsage = lines("<script>", `  kolaToast(${js(message)}, ${toastOptions});`, "</script>");
+  const htmlPreview = `<div id="vue" style="width:380px;max-width:100%"></div>
+<button type="button" class="kola-btn kola-btn--secondary" id="afficher" style="width:380px;max-width:100%">Afficher en vrai</button>
+<script>
+document.getElementById("vue").append(KolaToast.view(${js(message)}, ${toastOptions}));
+document.getElementById("afficher").addEventListener("click", () => kolaToast(${js(message)}, ${toastOptions}));
+</script>`;
+
   return (
     <Playground
       slug="notifications"
       color={color}
       usage={usage}
       reactUsage={reactUsage}
+      vueUsage={vueUsage}
+      htmlUsage={htmlUsage}
+      htmlPreview={htmlPreview}
       react={<ToastDemo type={type} title={title || undefined} message={message} />}
       params={{ color, type, title: title || undefined, message, dark: flag(dark) }}
       controls={
@@ -701,6 +939,30 @@ function SelectPlayground() {
     "/>",
   );
 
+  const vueUsage = lines(
+    "<KolaSelect",
+    '  v-model="ville"',
+    `  ${vAttr("label", label)}`,
+    '  :options="[',
+    "    { value: 'dla', label: 'Douala', subtitle: 'Littoral' },",
+    "    { value: 'yde', label: 'Yaoundé', subtitle: 'Centre' },",
+    "    { value: 'bfm', label: 'Bafoussam', subtitle: 'Ouest' },",
+    '  ]"',
+    "/>",
+  );
+  const htmlSelect = (cities: typeof CITIES) =>
+    lines(
+      '<div class="kola-field">',
+      `  <label class="kola-field__label" for="ville">${esc(label)}</label>`,
+      '  <select id="ville" name="ville" data-kola-select>',
+      '    <option value="">Choisir…</option>',
+      ...cities.map((c) => `    <option value="${c.value}" data-subtitle="${esc(c.subtitle)}">${esc(c.label)}</option>`),
+      "  </select>",
+      "</div>",
+    );
+  const htmlUsage = htmlSelect(CITIES.slice(0, 3));
+  const htmlPreview = box(340, htmlSelect(CITIES));
+
   return (
     <Playground
       slug="selecteur"
@@ -708,6 +970,9 @@ function SelectPlayground() {
       height={420}
       usage={usage}
       reactUsage={reactUsage}
+      vueUsage={vueUsage}
+      htmlUsage={htmlUsage}
+      htmlPreview={htmlPreview}
       react={<SelectDemo label={label} />}
       params={{ color, label, dark: flag(dark) }}
       controls={
@@ -810,6 +1075,59 @@ function CardPlayground() {
       ? { color, label: title, badge: badge || undefined, footer, dark: flag(dark) }
       : { color, variant: "stat", label: statLabel, value: statValue, change, dark: flag(dark) };
 
+  const up = (Number.isFinite(changeValue) ? changeValue : 0) >= 0;
+  const vueUsage =
+    variant === "product"
+      ? lines(
+          "<KolaCard",
+          badge && `  ${vAttr("badge", badge)}`,
+          `  ${vAttr("title", title)}`,
+          '  subtitle="Épicerie · En stock"',
+          `  ${vAttr("footer", footer)}`,
+          "  clickable",
+          '  @click="ouvrir"',
+          ">",
+          '  <template #media><img :src="urlImage" alt="" class="size-full object-cover" /></template>',
+          "</KolaCard>",
+        )
+      : lines(
+          "<KolaStatCard",
+          `  ${vAttr("label", statLabel)}`,
+          `  ${vAttr("value", statValue)}`,
+          change && `  :change="${Number.isFinite(changeValue) ? changeValue : 0}"`,
+          ">",
+          "  <template #icon><MoneyIcon /></template>",
+          "</KolaStatCard>",
+        );
+  const productHtml = (media: string) =>
+    lines(
+      '<a class="kola-card" href="/produits/riz">',
+      '  <div class="kola-card__media">',
+      `    ${media}`,
+      badge && `    <span class="kola-card__badge">${esc(badge)}</span>`,
+      "  </div>",
+      '  <div class="kola-card__body">',
+      `    <h3 class="kola-card__title">${esc(title)}</h3>`,
+      '    <p class="kola-card__subtitle">Épicerie · En stock</p>',
+      `    <div class="kola-card__footer">${esc(footer)}</div>`,
+      "  </div>",
+      "</a>",
+    );
+  const statHtml = lines(
+    '<div class="kola-stat">',
+    '  <div class="kola-stat__head">',
+    `    <span class="kola-stat__label">${esc(statLabel)}</span>`,
+    `    <span class="kola-stat__icon">${MONEY_SVG}</span>`,
+    "  </div>",
+    `  <span class="kola-stat__value">${esc(statValue)}</span>`,
+    change &&
+      Number.isFinite(changeValue) &&
+      `  <span class="kola-stat__change kola-stat__change--${up ? "up" : "down"}">${SVG(up ? "M3 17l6-6 4 4 8-8M15 7h6v6" : "M3 7l6 6 4-4 8 8M15 17h6v-6")} ${formatChange(changeValue)} <small>vs hier</small></span>`,
+    "</div>",
+  );
+  const htmlUsage = variant === "product" ? productHtml('<img src="riz.jpg" alt="">') : statHtml;
+  const htmlPreview = variant === "product" ? box(280, productHtml(BASKET_SVG).replace('href="/produits/riz"', 'href="#"')) : box(300, statHtml);
+
   return (
     <Playground
       slug="carte"
@@ -817,6 +1135,9 @@ function CardPlayground() {
       height={420}
       usage={usage}
       reactUsage={reactUsage}
+      vueUsage={vueUsage}
+      htmlUsage={htmlUsage}
+      htmlPreview={htmlPreview}
       react={reactPreview}
       params={params}
       controls={
@@ -919,6 +1240,34 @@ function TablePlayground() {
     "/>",
   );
 
+  const vueUsage = lines(
+    "<KolaDataTable",
+    '  :rows="produits"',
+    perPage !== 8 && `  :rows-per-page="${perPage}"`,
+    '  :columns="[',
+    "    { label: 'Produit', cell: (p) => p.nom, sortBy: (p) => p.nom, flex: 2 },",
+    "    { label: 'Stock', cell: (p) => p.stock, sortBy: (p) => p.stock, numeric: true },",
+    "    { label: 'Prix', cell: (p) => `${formatAmount(p.prix)} FCFA`, sortBy: (p) => p.prix, numeric: true, flex: 2 },",
+    '  ]"',
+    "/>",
+  );
+  const htmlTable = (rows: typeof PRODUCTS, more: boolean) =>
+    lines(
+      `<table class="kola-table" data-kola-table data-rows-per-page="${perPage}">`,
+      "  <thead><tr>",
+      "    <th data-sort>Produit</th>",
+      '    <th data-sort="number" class="is-num">Stock</th>',
+      '    <th data-sort="number" class="is-num">Prix</th>',
+      "  </tr></thead>",
+      "  <tbody>",
+      ...rows.map((r) => `    <tr><td>${esc(r.name)}</td><td>${r.stock}</td><td data-value="${r.price}">${formatAmount(r.price)} FCFA</td></tr>`),
+      more && "    <!-- … une ligne <tr> par produit -->",
+      "  </tbody>",
+      "</table>",
+    );
+  const htmlUsage = htmlTable(PRODUCTS.slice(0, 3), true);
+  const htmlPreview = box(mobile ? 360 : 640, htmlTable(PRODUCTS, false));
+
   return (
     <Playground
       slug="tableau"
@@ -926,6 +1275,9 @@ function TablePlayground() {
       height={mobile ? 640 : 480}
       usage={usage}
       reactUsage={reactUsage}
+      vueUsage={vueUsage}
+      htmlUsage={htmlUsage}
+      htmlPreview={htmlPreview}
       react={
         <div style={{ width: mobile ? 360 : 640 }} className="max-w-full">
           <KolaDataTable
@@ -970,7 +1322,11 @@ export const PLAYGROUNDS: Record<string, () => React.JSX.Element> = {
 
 /** Affiche le playground d'un composant. Rendu côté navigateur : la page serveur
  *  ne peut pas lire l'objet PLAYGROUNDS directement. */
-export function ComponentPlayground({ slug }: { slug: string }) {
+export function ComponentPlayground({ slug, htmlAssets }: { slug: string; htmlAssets: { css: string; js: string } }) {
   const Selected = PLAYGROUNDS[slug];
-  return Selected ? <Selected /> : null;
+  return Selected ? (
+    <HtmlAssetsContext.Provider value={htmlAssets}>
+      <Selected />
+    </HtmlAssetsContext.Provider>
+  ) : null;
 }

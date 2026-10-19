@@ -1,0 +1,22 @@
+/* Kola UI — Bouton. Variantes : --primary, --secondary, --outline, --text. */
+.kola-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 48px; padding: 0 20px; border: 1px solid transparent;
+  border-radius: var(--kola-radius); font: inherit; font-size: 1rem; font-weight: 600;
+  text-decoration: none; cursor: pointer;
+  transition: filter 0.15s, background-color 0.15s, border-color 0.15s, color 0.15s;
+}
+.kola-btn:focus-visible { outline: 2px solid var(--kola-primary); outline-offset: 2px; }
+.kola-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.kola-btn svg { width: 20px; height: 20px; }
+.kola-btn--primary { background: var(--kola-primary); color: var(--kola-on-primary); }
+.kola-btn--primary:hover { filter: brightness(1.1); }
+.kola-btn--secondary { background: var(--kola-tint); color: var(--kola-primary); }
+.kola-btn--secondary:hover { background: color-mix(in srgb, var(--kola-primary) 20%, transparent); }
+.kola-btn--outline { background: transparent; border-color: var(--kola-line-strong); color: var(--kola-ink); }
+.kola-btn--outline:hover { border-color: var(--kola-primary); color: var(--kola-primary); }
+.kola-btn--text { background: transparent; color: var(--kola-primary); }
+.kola-btn--text:hover { background: var(--kola-tint); }
+.kola-btn--danger { background: var(--kola-danger); color: var(--kola-bg); }
+.kola-btn--block { width: 100%; }
+.kola-btn.is-loading { pointer-events: none; cursor: progress; }

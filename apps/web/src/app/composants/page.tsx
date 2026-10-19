@@ -12,7 +12,7 @@ export default function CataloguePage() {
     <main className="mx-auto flex max-w-[1200px] flex-col gap-12 px-6 pt-10 pb-20">
       <div className="flex flex-col gap-2.5">
         <h1 className="font-display text-[44px] font-extrabold tracking-tight">Composants</h1>
-        <p className="text-[17px] text-ink-muted">Chaque composant existe en Flutter et en React. Il se teste en direct, se personnalise, puis se copie.</p>
+        <p className="text-[17px] text-ink-muted">Chaque composant existe en Flutter, React, Vue et HTML. Il se teste en direct, se personnalise, puis se copie.</p>
       </div>
 
       {CATEGORIES.map((cat) => (
@@ -28,7 +28,7 @@ export default function CataloguePage() {
                 >
                   <span className="text-lg font-semibold">{c.name}</span>
                   <span className="leading-relaxed text-ink-muted">{c.summary}</span>
-                  <span className="mt-1.5 self-start rounded-md bg-accent-tint px-2 py-0.5 font-mono text-xs text-accent">Flutter · React</span>
+                  <span className="mt-1.5 self-start rounded-md bg-accent-tint px-2 py-0.5 font-mono text-xs text-accent">Flutter · React · Vue · HTML</span>
                 </Link>
               ) : (
                 <div key={c.slug} className="flex flex-col gap-2 rounded-2xl border border-line bg-surface p-6 opacity-80">

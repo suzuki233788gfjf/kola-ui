@@ -1,16 +1,21 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getDartSource, getReactSource } from "@/lib/source";
+import { getSource } from "@/lib/source";
 import { CodeBlock } from "@/components/CodeBlock";
 import { FrameworkTabs, FrameworkView } from "@/components/Framework";
 
 export const metadata: Metadata = {
   title: "Démarrer",
-  description: "Intégrer Kola UI dans un projet Flutter ou React en deux minutes.",
+  description: "Intégrer Kola UI dans un projet Flutter, React, Vue ou HTML en deux minutes.",
 };
 
 export default async function DemarrerPage() {
-  const [theme, reactTheme] = await Promise.all([getDartSource("kola_theme.dart"), getReactSource("kola-theme.css")]);
+  const [theme, reactTheme, vueTheme, htmlTheme] = await Promise.all([
+    getSource("flutter", "kola_theme.dart"),
+    getSource("react", "kola-theme.css"),
+    getSource("vue", "kola-theme.css"),
+    getSource("html", "kola-theme.css"),
+  ]);
 
   return (
     <main className="mx-auto flex max-w-[820px] flex-col gap-12 px-6 pt-10 pb-22">
@@ -102,6 +107,90 @@ export default async function DemarrerPage() {
                 Le fichier copié est à toi. Change ce que tu veux : classes, textes, comportement. Rien ne sera écrasé par
                 une mise à jour.
               </p>
+            </Step>
+          </div>
+        }
+        vue={
+          <div className="flex flex-col gap-12">
+            <Step n={1} title="Vérifier les prérequis">
+              <p>
+                Les composants Vue utilisent <strong className="text-ink">Vue 3.5 ou plus</strong> et{" "}
+                <strong className="text-ink">Tailwind CSS v4</strong>, comme un projet Vite ou Laravel + Inertia classique. Rien
+                d&apos;autre à installer.
+              </p>
+            </Step>
+
+            <Step n={2} title="Copier le thème">
+              <p>
+                Le thème définit les couleurs Kola, le mode sombre et l&apos;arrondi. Copie-le dans{" "}
+                <Path>src/components/kola/</Path>.
+              </p>
+              <CodeBlock filename="src/components/kola/kola-theme.css" code={vueTheme} />
+            </Step>
+
+            <Step n={3} title="Brancher le thème">
+              <p>Dans ton CSS principal, importe-le juste après Tailwind.</p>
+              <CodeBlock
+                filename="src/style.css"
+                code={`@import "tailwindcss";\n@import "./components/kola/kola-theme.css";\n\n/* Optionnel : ta couleur */\n:root {\n  --kola-primary: #1f6b45;\n}`}
+              />
+            </Step>
+
+            <Step n={4} title="Ajouter un composant">
+              <p>
+                Ouvre un composant dans le catalogue, choisis Vue, puis copie son fichier <Path>.vue</Path> dans{" "}
+                <Path>src/components/kola/</Path>. Il s&apos;utilise avec <Path>v-model</Path>, comme un champ normal.
+              </p>
+              <CatalogueLink />
+            </Step>
+
+            <Step n={5} title="Le modifier">
+              <p>Le fichier copié est à toi. Change ce que tu veux : classes, textes, comportement.</p>
+            </Step>
+          </div>
+        }
+        html={
+          <div className="flex flex-col gap-12">
+            <Step n={1} title="Rien à installer">
+              <p>
+                La version HTML, c&apos;est du <strong className="text-ink">HTML, du CSS et un peu de JavaScript</strong>, sans
+                bibliothèque. Elle marche partout : Laravel (Blade), PHP, Django, WordPress, ou une simple page.
+              </p>
+            </Step>
+
+            <Step n={2} title="Copier le thème">
+              <p>
+                Copie ce fichier dans un dossier <Path>kola/</Path> de ton site (par exemple <Path>public/kola/</Path> avec
+                Laravel).
+              </p>
+              <CodeBlock filename="kola/kola-theme.css" code={htmlTheme} />
+            </Step>
+
+            <Step n={3} title="Le charger dans ta page">
+              <p>Dans le &lt;head&gt;, avant les fichiers des composants :</p>
+              <CodeBlock
+                filename="index.html"
+                code={`<link rel="stylesheet" href="kola/kola-theme.css">\n\n<!-- Optionnel : ta couleur -->\n<style>:root { --kola-primary: #1f6b45; }</style>`}
+              />
+              <p>
+                Pour le mode sombre : <Path>&lt;html data-kola-theme=&quot;dark&quot;&gt;</Path>.
+              </p>
+            </Step>
+
+            <Step n={4} title="Ajouter un composant">
+              <p>
+                Ouvre un composant, choisis HTML, copie son <Path>.css</Path> (et son <Path>.js</Path> s&apos;il en a un) dans{" "}
+                <Path>kola/</Path>, puis colle le code HTML dans ta page :
+              </p>
+              <CodeBlock
+                filename="index.html"
+                code={`<link rel="stylesheet" href="kola/kola-phone-field.css">\n<script src="kola/kola-phone-field.js" defer></script>`}
+              />
+              <CatalogueLink />
+            </Step>
+
+            <Step n={5} title="Le modifier">
+              <p>Les fichiers copiés sont à toi. Change ce que tu veux : couleurs, textes, comportement.</p>
             </Step>
           </div>
         }

@@ -1,0 +1,21 @@
+/* Kola UI — Champ de texte (utilisé aussi par Téléphone, Montant, Sélecteur, Date). */
+.kola-field { display: flex; flex-direction: column; gap: 6px; font-size: 1rem; color: var(--kola-ink); }
+.kola-field__label { font-size: 0.875rem; font-weight: 600; }
+.kola-field__box {
+  display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 14px;
+  border: 1px solid var(--kola-line-strong); border-radius: var(--kola-radius);
+  background: var(--kola-surface); transition: border-color 0.15s, box-shadow 0.15s;
+}
+.kola-field__box:focus-within { border-color: var(--kola-primary); box-shadow: 0 0 0 1px var(--kola-primary); }
+.kola-field__box > svg { width: 20px; height: 20px; flex: none; color: var(--kola-ink-subtle); }
+.kola-field__input {
+  flex: 1; min-width: 0; padding: 12px 0; border: 0; outline: 0;
+  background: transparent; color: var(--kola-ink); font: inherit;
+}
+.kola-field__input::placeholder { color: var(--kola-ink-subtle); }
+.kola-field__prefix { padding-right: 10px; border-right: 1px solid var(--kola-line); color: var(--kola-ink-muted); }
+.kola-field__suffix { font-size: 0.875rem; font-weight: 600; color: var(--kola-ink-subtle); }
+.kola-field__help { margin: 0; font-size: 0.875rem; color: var(--kola-ink-subtle); }
+.kola-field.is-invalid .kola-field__box { border-color: var(--kola-danger); box-shadow: 0 0 0 1px var(--kola-danger); }
+.kola-field.is-invalid .kola-field__help { color: var(--kola-danger); }
+.kola-field__toggle { margin-right: -6px; width: 36px; height: 36px; color: var(--kola-ink-subtle); }

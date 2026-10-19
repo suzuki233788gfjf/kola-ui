@@ -1,0 +1,71 @@
+/*
+ * Kola UI — thème React (Tailwind CSS v4).
+ *
+ * 1. Copie ce fichier dans ton projet, par exemple src/components/kola/kola-theme.css
+ * 2. Importe-le dans ton CSS global, juste après Tailwind :
+ *
+ *      @import "tailwindcss";
+ *      @import "./components/kola/kola-theme.css";
+ *
+ * 3. Change la couleur principale ici, ou sur n'importe quel bloc :
+ *      <div style="--kola-primary: #9a3324">…</div>
+ *
+ * Mode sombre : ajoute la classe "dark" (ou data-kola-theme="dark") sur <html>
+ * ou sur un bloc.
+ */
+
+:root,
+[data-kola-theme="light"] {
+  --kola-primary: #1f6b45;
+  --kola-on-primary: #ffffff;
+  --kola-bg: #fafaf8;
+  --kola-surface: #ffffff;
+  --kola-surface-muted: #f4f3ef;
+  --kola-ink: #1a1712;
+  --kola-ink-muted: #4f4a42;
+  --kola-ink-subtle: #6b655b;
+  --kola-line: #e6e3dc;
+  --kola-line-strong: #d9d5cc;
+  --kola-danger: #9a3324;
+  --kola-success: #1f6b45;
+  --kola-warning: #8a5a00;
+  --kola-info: #2d4a8a;
+  --kola-radius: 12px;
+  color-scheme: light;
+}
+
+.dark,
+[data-kola-theme="dark"] {
+  --kola-on-primary: #ffffff;
+  --kola-bg: #14120f;
+  --kola-surface: #1d1a16;
+  --kola-surface-muted: #26221d;
+  --kola-ink: #f3f1ec;
+  --kola-ink-muted: #c9c4ba;
+  --kola-ink-subtle: #a39d92;
+  --kola-line: #3a352d;
+  --kola-line-strong: #4a443a;
+  --kola-danger: #e8806f;
+  --kola-success: #6cc495;
+  --kola-warning: #e3b05a;
+  --kola-info: #95b3f0;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-kola-primary: var(--kola-primary);
+  --color-kola-on-primary: var(--kola-on-primary);
+  --color-kola-bg: var(--kola-bg);
+  --color-kola-surface: var(--kola-surface);
+  --color-kola-surface-muted: var(--kola-surface-muted);
+  --color-kola-ink: var(--kola-ink);
+  --color-kola-ink-muted: var(--kola-ink-muted);
+  --color-kola-ink-subtle: var(--kola-ink-subtle);
+  --color-kola-line: var(--kola-line);
+  --color-kola-line-strong: var(--kola-line-strong);
+  --color-kola-danger: var(--kola-danger);
+  --color-kola-success: var(--kola-success);
+  --color-kola-warning: var(--kola-warning);
+  --color-kola-info: var(--kola-info);
+  --radius-kola: var(--kola-radius);
+}

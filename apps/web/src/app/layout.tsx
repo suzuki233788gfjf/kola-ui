@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     template: "%s · Kola UI",
   },
   description:
-    "Des composants Flutter et React prêts à copier, sans installation ni dépendance. Pensés pour nos usages : +237, FCFA, Mobile Money, dates en français.",
+    "Des composants Flutter, React, Vue et HTML prêts à copier, sans installation ni dépendance. Pensés pour nos usages : +237, FCFA, Mobile Money, dates en français.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

@@ -20,7 +20,7 @@ export default function Home() {
       <section className="mx-auto flex max-w-[1200px] flex-wrap items-center gap-14 px-6 pt-20 pb-18">
         <div className="flex min-w-0 flex-[1_1_460px] flex-col gap-6">
           <span className="self-start rounded-full bg-accent-tint px-3 py-1.5 text-sm font-medium text-accent">
-            Flutter et React · HTML bientôt
+            Flutter · React · Vue · HTML
           </span>
           <h1 className="font-display text-5xl leading-[1.02] font-extrabold tracking-tight sm:text-6xl">
             Des composants prêts à copier. Rien à installer.
@@ -109,7 +109,7 @@ export default function Home() {
               <span className="text-lg font-semibold">{c.name}</span>
               <span className="leading-relaxed text-ink-muted">{c.summary}</span>
               <span className="mt-1.5 self-start rounded-md bg-chip px-2 py-0.5 font-mono text-xs text-ink-muted">
-                {c.available ? "Flutter · React" : "bientôt"}
+                {c.available ? "Flutter · React · Vue · HTML" : "bientôt"}
               </span>
             </div>
           ))}

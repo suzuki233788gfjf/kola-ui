@@ -1,0 +1,23 @@
+{
+  "name": "preview-vue",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Vitrine Vue de Kola UI : aperçus en direct des composants Vue, affichés dans le site.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "typecheck": "vue-tsc --noEmit"
+  },
+  "dependencies": {
+    "vue": "3.5.43"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "4.3.3",
+    "@vitejs/plugin-vue": "6.0.9",
+    "tailwindcss": "4.3.3",
+    "typescript": "5.9.3",
+    "vite": "8.3.2",
+    "vue-tsc": "3.3.12"
+  }
+}

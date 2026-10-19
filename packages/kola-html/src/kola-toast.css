@@ -1,0 +1,20 @@
+/* Kola UI — Notifications. */
+.kola-toasts { position: fixed; inset: auto 0 0 0; z-index: 1000; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 16px; pointer-events: none; }
+.kola-toast {
+  display: flex; align-items: flex-start; gap: 12px; width: 100%; max-width: 420px; overflow: hidden;
+  padding: 14px 8px 14px 0; border: 1px solid var(--kola-line); border-radius: var(--kola-radius);
+  background: var(--kola-surface); color: var(--kola-ink); box-shadow: 0 10px 24px -8px rgba(0, 0, 0, 0.2);
+  pointer-events: auto; animation: kola-toast-in 0.2s ease-out;
+}
+.kola-toast::before { content: ""; align-self: stretch; width: 4px; margin: -14px 0; background: var(--kola-toast-color); }
+.kola-toast__icon { width: 20px; height: 20px; flex: none; margin-top: 2px; color: var(--kola-toast-color); }
+.kola-toast__body { flex: 1; min-width: 0; }
+.kola-toast__title { margin: 0 0 2px; font-weight: 600; }
+.kola-toast__msg { margin: 0; }
+.kola-toast__title + .kola-toast__msg { font-size: 0.875rem; color: var(--kola-ink-muted); }
+.kola-toast__close { width: 32px; height: 32px; margin-top: -4px; color: var(--kola-ink-subtle); }
+.kola-toast--success { --kola-toast-color: var(--kola-success); }
+.kola-toast--error { --kola-toast-color: var(--kola-danger); }
+.kola-toast--info { --kola-toast-color: var(--kola-info); }
+.kola-toast--warning { --kola-toast-color: var(--kola-warning); }
+@keyframes kola-toast-in { from { opacity: 0; transform: translateY(8px); } }

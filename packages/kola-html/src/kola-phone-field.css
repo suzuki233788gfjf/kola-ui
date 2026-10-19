@@ -1,0 +1,4 @@
+/* Kola UI — Téléphone +237 (s'appuie sur kola-text-field.css). */
+.kola-operator { border-radius: 6px; padding: 4px 8px; font-size: 0.75rem; font-weight: 700; color: #1a1712; }
+.kola-operator--mtn { background: #ffcb05; }
+.kola-operator--orange { background: #ff7900; }

@@ -1,0 +1,23 @@
+/* Kola UI — Tableau de données. Sous 560 px de large, chaque ligne devient une carte. */
+.kola-table-wrap { container-type: inline-size; width: 100%; overflow: hidden; border: 1px solid var(--kola-line); border-radius: 16px; background: var(--kola-surface); color: var(--kola-ink); }
+.kola-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.kola-table th { padding: 12px 16px; background: var(--kola-surface-muted); color: var(--kola-ink-muted); font-size: 0.875rem; font-weight: 600; text-align: left; border-bottom: 1px solid var(--kola-line); }
+.kola-table td { padding: 12px 16px; border-bottom: 1px solid var(--kola-line); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.kola-table tbody tr:last-child td { border-bottom: 0; }
+.kola-table .is-num { text-align: right; font-variant-numeric: tabular-nums; }
+.kola-table__sort { display: inline-flex; align-items: center; gap: 4px; padding: 0; border: 0; background: none; color: inherit; font: inherit; cursor: pointer; }
+.kola-table__sort:hover, th[aria-sort] .kola-table__sort { color: var(--kola-ink); }
+.kola-table__sort svg { width: 16px; height: 16px; opacity: 0.4; }
+th[aria-sort] .kola-table__sort svg { opacity: 1; }
+.kola-table__foot { display: flex; align-items: center; justify-content: flex-end; gap: 8px; padding: 8px 12px; border-top: 1px solid var(--kola-line); font-size: 0.875rem; color: var(--kola-ink-muted); }
+.kola-table__foot span { margin-right: 8px; font-variant-numeric: tabular-nums; }
+@container (max-width: 559px) {
+  .kola-table thead { display: none; }
+  .kola-table, .kola-table tbody, .kola-table tr, .kola-table td { display: block; width: 100%; }
+  .kola-table tr { padding: 12px 16px; border-bottom: 1px solid var(--kola-line); }
+  .kola-table tbody tr:last-child { border-bottom: 0; }
+  .kola-table td { display: flex; justify-content: space-between; gap: 12px; padding: 3px 0; border: 0; font-size: 0.875rem; white-space: normal; }
+  .kola-table td::before { content: attr(data-label); color: var(--kola-ink-subtle); }
+  .kola-table td:first-child { font-size: 1rem; font-weight: 600; }
+  .kola-table td:first-child::before { content: none; }
+}

@@ -1,0 +1,28 @@
+/* Kola UI — Carte produit et carte statistique (CSS seul). */
+.kola-card {
+  display: flex; flex-direction: column; width: 100%; overflow: hidden; padding: 0;
+  border: 1px solid var(--kola-line); border-radius: 16px; background: var(--kola-surface);
+  color: var(--kola-ink); font: inherit; text-align: left; text-decoration: none;
+}
+a.kola-card, button.kola-card { cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; }
+a.kola-card:hover, button.kola-card:hover { transform: translateY(-2px); box-shadow: 0 12px 24px -12px rgba(0, 0, 0, 0.25); }
+.kola-card__media { position: relative; display: flex; align-items: center; justify-content: center; height: 140px; overflow: hidden; background: var(--kola-surface-muted); color: var(--kola-ink-subtle); }
+.kola-card__media img { width: 100%; height: 100%; object-fit: cover; }
+.kola-card__media svg { width: 48px; height: 48px; }
+.kola-card__badge { position: absolute; top: 12px; left: 12px; padding: 4px 10px; border-radius: 999px; background: var(--kola-primary); color: var(--kola-on-primary); font-size: 0.75rem; font-weight: 600; }
+.kola-card__body { display: flex; flex-direction: column; gap: 4px; padding: 16px; }
+.kola-card__title { margin: 0; font-size: 1rem; font-weight: 600; }
+.kola-card__subtitle { margin: 0; font-size: 0.875rem; color: var(--kola-ink-subtle); }
+.kola-card__footer { margin-top: 8px; font-weight: 700; }
+
+.kola-stat { display: flex; flex-direction: column; gap: 12px; width: 100%; padding: 20px; border: 1px solid var(--kola-line); border-radius: 16px; background: var(--kola-surface); color: var(--kola-ink); }
+.kola-stat__head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.kola-stat__label { font-size: 0.875rem; font-weight: 500; color: var(--kola-ink-muted); }
+.kola-stat__icon { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 10px; background: var(--kola-tint); color: var(--kola-primary); }
+.kola-stat__icon svg { width: 20px; height: 20px; }
+.kola-stat__value { font-size: 1.75rem; font-weight: 700; line-height: 1.2; letter-spacing: -0.01em; }
+.kola-stat__change { display: flex; align-items: center; gap: 6px; font-size: 0.875rem; font-weight: 600; }
+.kola-stat__change svg { width: 16px; height: 16px; }
+.kola-stat__change--up { color: var(--kola-success); }
+.kola-stat__change--down { color: var(--kola-danger); }
+.kola-stat__change small { font-size: inherit; font-weight: 400; color: var(--kola-ink-subtle); }

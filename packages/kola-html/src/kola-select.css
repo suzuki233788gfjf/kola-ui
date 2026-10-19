@@ -1,0 +1,30 @@
+/* Kola UI — Sélecteur avec recherche (s'appuie sur kola-text-field.css). */
+.kola-select__native { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.kola-select__trigger {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; min-height: 48px; padding: 0 14px;
+  border: 1px solid var(--kola-line-strong); border-radius: var(--kola-radius);
+  background: var(--kola-surface); color: var(--kola-ink-subtle); font: inherit; text-align: left; cursor: pointer;
+}
+.kola-select__trigger.has-value { color: var(--kola-ink); }
+.kola-select__trigger:hover { border-color: var(--kola-ink-subtle); }
+.kola-select__trigger:focus-visible { outline: none; border-color: var(--kola-primary); box-shadow: 0 0 0 1px var(--kola-primary); }
+.kola-select__trigger svg { width: 20px; height: 20px; color: var(--kola-ink-subtle); }
+.kola-select__panel { display: flex; flex-direction: column; max-height: min(560px, 80vh); }
+.kola-select__head { display: flex; flex-direction: column; gap: 12px; padding: 16px; border-bottom: 1px solid var(--kola-line); }
+.kola-select__title { margin: 0; font-size: 1.125rem; font-weight: 700; }
+.kola-select__search {
+  min-height: 44px; padding: 0 12px; border: 1px solid var(--kola-line-strong); border-radius: var(--kola-radius);
+  background: var(--kola-surface); color: var(--kola-ink); font: inherit; outline: none;
+}
+.kola-select__search:focus { border-color: var(--kola-primary); box-shadow: 0 0 0 1px var(--kola-primary); }
+.kola-select__list { margin: 0; padding: 8px; overflow-y: auto; list-style: none; }
+.kola-select__empty { padding: 24px 12px; text-align: center; color: var(--kola-ink-subtle); }
+.kola-select__opt {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; padding: 10px 12px;
+  border: 0; border-radius: 10px; background: transparent; color: var(--kola-ink); font: inherit; text-align: left; cursor: pointer;
+}
+.kola-select__opt:hover { background: var(--kola-surface-muted); }
+.kola-select__opt[aria-selected="true"] { background: var(--kola-tint); }
+.kola-select__opt[aria-selected="true"] .kola-select__label { font-weight: 600; color: var(--kola-primary); }
+.kola-select__sub { display: block; font-size: 0.875rem; color: var(--kola-ink-subtle); }
+.kola-select__opt svg { width: 20px; height: 20px; color: var(--kola-primary); }

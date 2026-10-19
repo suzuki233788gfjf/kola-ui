@@ -1,3 +1,5 @@
+import type { Framework } from "@/lib/frameworks";
+
 export type Category = "Formulaires" | "Paiement" | "Affichage" | "Retours";
 
 export type KolaComponent = {
@@ -5,43 +7,112 @@ export type KolaComponent = {
   name: string;
   category: Category;
   summary: string;
-  /** true quand le composant existe (Flutter et React) */
+  /** true quand le composant existe dans les 4 langages */
   available: boolean;
-  /** Fichier Dart du composant, relatif à packages/kola_flutter/lib/src */
-  file?: string;
-  /** Autres fichiers Kola nécessaires (en plus du thème). */
-  requires?: string[];
+  /** Fichiers du composant, par langage (le premier est le fichier principal). */
+  files: Record<Framework, string[]>;
+  /** Autres composants Kola nécessaires (slugs), par langage. */
+  requires?: Partial<Record<Framework, string[]>>;
 };
 
+const all = (slugs: string[]) => ({ flutter: slugs, react: slugs, vue: slugs, html: slugs });
+
 export const COMPONENTS: KolaComponent[] = [
-  { slug: "bouton", name: "Bouton", category: "Formulaires", summary: "Principal, secondaire, contour, texte. Chargement et icône.", available: true, file: "kola_button.dart" },
-  { slug: "champ-de-texte", name: "Champ de texte", category: "Formulaires", summary: "Label, aide, erreur, validation et mot de passe masquable.", available: true, file: "kola_text_field.dart" },
-  { slug: "selecteur", name: "Sélecteur avec recherche", category: "Formulaires", summary: "Liste filtrable, recherche sans accents (« yaounde » trouve Yaoundé).", available: true, file: "kola_select.dart" },
-  { slug: "date-picker", name: "Date picker", category: "Formulaires", summary: "Une date ou une période, en français, semaine qui commence le lundi.", available: true, file: "kola_date_picker.dart" },
-  { slug: "telephone-237", name: "Téléphone +237", category: "Formulaires", summary: "Formatage automatique et détection MTN / Orange.", available: true, file: "kola_phone_field.dart", requires: ["kola_text_field.dart"] },
-  { slug: "montant-fcfa", name: "Montant FCFA", category: "Formulaires", summary: "Séparateur de milliers à la saisie, sans décimales.", available: true, file: "kola_amount_field.dart", requires: ["kola_text_field.dart"] },
   {
-    slug: "mobile-money",
-    name: "Formulaire Mobile Money",
-    category: "Paiement",
-    summary: "MTN MoMo et Orange Money : saisie, attente de confirmation, succès, échec.",
-    available: true,
-    file: "kola_mobile_money_form.dart",
-    requires: ["kola_text_field.dart", "kola_phone_field.dart", "kola_amount_field.dart"],
+    slug: "bouton", name: "Bouton", category: "Formulaires", available: true,
+    summary: "Principal, secondaire, contour, texte. Chargement et icône.",
+    files: { flutter: ["kola_button.dart"], react: ["kola-button.tsx"], vue: ["KolaButton.vue"], html: ["kola-button.css"] },
   },
-  { slug: "carte", name: "Carte", category: "Affichage", summary: "Carte produit et carte statistique (chiffre clé + évolution).", available: true, file: "kola_card.dart" },
-  { slug: "tableau", name: "Tableau de données", category: "Affichage", summary: "Tri, pagination, et cartes automatiques sur petit écran.", available: true, file: "kola_data_table.dart" },
-  { slug: "confirmation", name: "Confirmation", category: "Retours", summary: "Boîte de dialogue ou panneau du bas, en une ligne.", available: true, file: "kola_confirm.dart" },
-  { slug: "notifications", name: "Notifications", category: "Retours", summary: "Succès, erreur, info, avertissement.", available: true, file: "kola_toast.dart" },
+  {
+    slug: "champ-de-texte", name: "Champ de texte", category: "Formulaires", available: true,
+    summary: "Label, aide, erreur, validation et mot de passe masquable.",
+    files: { flutter: ["kola_text_field.dart"], react: ["kola-text-field.tsx"], vue: ["KolaTextField.vue"], html: ["kola-text-field.css", "kola-text-field.js"] },
+  },
+  {
+    slug: "selecteur", name: "Sélecteur avec recherche", category: "Formulaires", available: true,
+    summary: "Liste filtrable, recherche sans accents (« yaounde » trouve Yaoundé).",
+    files: { flutter: ["kola_select.dart"], react: ["kola-select.tsx"], vue: ["KolaSelect.vue"], html: ["kola-select.css", "kola-select.js"] },
+    requires: { html: ["champ-de-texte"] },
+  },
+  {
+    slug: "date-picker", name: "Date picker", category: "Formulaires", available: true,
+    summary: "Une date ou une période, en français, semaine qui commence le lundi.",
+    files: { flutter: ["kola_date_picker.dart"], react: ["kola-date-picker.tsx"], vue: ["KolaDatePicker.vue", "KolaCalendar.vue"], html: ["kola-date-picker.css", "kola-date-picker.js"] },
+    requires: { html: ["champ-de-texte", "bouton"] },
+  },
+  {
+    slug: "telephone-237", name: "Téléphone +237", category: "Formulaires", available: true,
+    summary: "Formatage automatique et détection MTN / Orange.",
+    files: { flutter: ["kola_phone_field.dart"], react: ["kola-phone-field.tsx"], vue: ["KolaPhoneField.vue"], html: ["kola-phone-field.css", "kola-phone-field.js"] },
+    requires: all(["champ-de-texte"]),
+  },
+  {
+    slug: "montant-fcfa", name: "Montant FCFA", category: "Formulaires", available: true,
+    summary: "Séparateur de milliers à la saisie, sans décimales.",
+    files: { flutter: ["kola_amount_field.dart"], react: ["kola-amount-field.tsx"], vue: ["KolaAmountField.vue"], html: ["kola-amount-field.js"] },
+    requires: all(["champ-de-texte"]),
+  },
+  {
+    slug: "mobile-money", name: "Formulaire Mobile Money", category: "Paiement", available: true,
+    summary: "MTN MoMo et Orange Money : saisie, attente de confirmation, succès, échec.",
+    files: { flutter: ["kola_mobile_money_form.dart"], react: ["kola-mobile-money-form.tsx"], vue: ["KolaMobileMoneyForm.vue"], html: ["kola-mobile-money-form.css", "kola-mobile-money-form.js"] },
+    requires: { ...all(["champ-de-texte", "telephone-237", "montant-fcfa"]), html: ["champ-de-texte", "telephone-237", "montant-fcfa", "bouton"] },
+  },
+  {
+    slug: "carte", name: "Carte", category: "Affichage", available: true,
+    summary: "Carte produit et carte statistique (chiffre clé + évolution).",
+    files: { flutter: ["kola_card.dart"], react: ["kola-card.tsx"], vue: ["KolaCard.vue", "KolaStatCard.vue"], html: ["kola-card.css"] },
+  },
+  {
+    slug: "tableau", name: "Tableau de données", category: "Affichage", available: true,
+    summary: "Tri, pagination, et cartes automatiques sur petit écran.",
+    files: { flutter: ["kola_data_table.dart"], react: ["kola-data-table.tsx"], vue: ["KolaDataTable.vue"], html: ["kola-data-table.css", "kola-data-table.js"] },
+  },
+  {
+    slug: "confirmation", name: "Confirmation", category: "Retours", available: true,
+    summary: "Boîte de dialogue ou panneau du bas, en une ligne.",
+    files: { flutter: ["kola_confirm.dart"], react: ["kola-confirm.tsx"], vue: ["KolaConfirm.vue"], html: ["kola-confirm.css", "kola-confirm.js"] },
+    requires: { html: ["bouton"] },
+  },
+  {
+    slug: "notifications", name: "Notifications", category: "Retours", available: true,
+    summary: "Succès, erreur, info, avertissement.",
+    files: { flutter: ["kola_toast.dart"], react: ["kola-toast.tsx"], vue: ["KolaToaster.vue", "KolaToastView.vue"], html: ["kola-toast.css", "kola-toast.js"] },
+    requires: { html: ["bouton"] },
+  },
 ];
 
-/** kola_text_field.dart → kola-text-field.tsx (même nom, convention React). */
-export function reactFile(dartFile: string) {
-  return dartFile.replace(/_/g, "-").replace(/\.dart$/, ".tsx");
-}
+/** Le thème à copier une fois, par langage. */
+export const THEME_FILE: Record<Framework, string> = {
+  flutter: "kola_theme.dart",
+  react: "kola-theme.css",
+  vue: "kola-theme.css",
+  html: "kola-theme.css",
+};
+
+/** Dossier conseillé dans le projet de l'utilisateur. */
+export const TARGET_FOLDER: Record<Framework, string> = {
+  flutter: "lib/kola/",
+  react: "components/kola/",
+  vue: "components/kola/",
+  html: "kola/",
+};
 
 export const CATEGORIES: Category[] = ["Formulaires", "Paiement", "Affichage", "Retours"];
 
 export function getComponent(slug: string) {
   return COMPONENTS.find((c) => c.slug === slug);
+}
+
+/** Toutes les dépendances (récursives), dans l'ordre où il faut les charger. */
+export function dependencyOrder(slug: string, framework: Framework): KolaComponent[] {
+  const out: KolaComponent[] = [];
+  const visit = (s: string) => {
+    const c = getComponent(s);
+    if (!c || out.includes(c)) return;
+    for (const d of c.requires?.[framework] ?? []) visit(d);
+    out.push(c);
+  };
+  visit(slug);
+  return out;
 }

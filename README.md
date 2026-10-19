@@ -5,11 +5,15 @@
 <h1 align="center">Kola UI</h1>
 
 <p align="center">
-  <strong>Des composants Flutter et React prêts à copier. Rien à installer.</strong><br />
+  <strong>Des composants Flutter, React, Vue et HTML prêts à copier. Rien à installer.</strong><br />
   Pensés pour nos usages : numéros +237, montants en FCFA, paiement Mobile Money.
 </p>
 
-<!-- Les liens vers le site seront ajoutés quand l'adresse publique sera choisie (kolaui.dev). -->
+<p align="center">
+  <a href="https://kola-ui-five.vercel.app">Voir le site</a> ·
+  <a href="https://kola-ui-five.vercel.app/composants">Catalogue</a> ·
+  <a href="https://kola-ui-five.vercel.app/demarrer">Démarrer</a>
+</p>
 
 ---
 
@@ -35,8 +39,15 @@ pas de mise à jour qui casse tout.
 | **Confirmation** | Boîte de dialogue ou panneau du bas, en une ligne |
 | **Notifications** | Succès, erreur, info, avertissement |
 
-Chaque composant existe en **Flutter** et en **React** (Tailwind CSS v4), avec le même comportement.
-Aucun n'ajoute de dépendance : seulement Flutter, ou seulement React + Tailwind.
+Chaque composant existe en **Flutter**, **React**, **Vue** et **HTML**, avec le même comportement.
+Aucun n'ajoute de dépendance :
+
+| Langage | Ce qu'il faut |
+| --- | --- |
+| Flutter | Flutter, c'est tout |
+| React | React 18+ et Tailwind CSS v4 |
+| Vue | Vue 3.5+ et Tailwind CSS v4 (Vite, Laravel + Inertia…) |
+| HTML | Rien : HTML, CSS et un peu de JavaScript (Blade, PHP, Django, WordPress…) |
 
 ## Démarrer en 2 minutes
 
@@ -53,7 +64,7 @@ Aucun n'ajoute de dépendance : seulement Flutter, ou seulement React + Tailwind
    );
    ```
 
-3. Copie le composant dont tu as besoin depuis le catalogue du site (`/composants`).
+3. Copie le composant dont tu as besoin depuis le [catalogue](https://kola-ui-five.vercel.app/composants).
 
 ### React
 
@@ -69,15 +80,38 @@ Prérequis : React 18 ou plus et Tailwind CSS v4.
 
 3. Copie le composant dont tu as besoin (fichier `.tsx`) dans `src/components/kola/`.
 
+### Vue
+
+Même principe que React : copie [`kola-theme.css`](packages/kola-vue/src/kola-theme.css), importe-le après Tailwind,
+puis copie les fichiers `.vue` dans `src/components/kola/`. Les champs s'utilisent avec `v-model`.
+
+### HTML
+
+1. Copie [`kola-theme.css`](packages/kola-html/src/kola-theme.css) dans un dossier `kola/` de ton site.
+2. Charge-le dans le `<head>`, puis le `.css` (et le `.js`) de chaque composant :
+
+   ```html
+   <link rel="stylesheet" href="kola/kola-theme.css">
+   <link rel="stylesheet" href="kola/kola-text-field.css">
+   <link rel="stylesheet" href="kola/kola-phone-field.css">
+   <script src="kola/kola-phone-field.js" defer></script>
+   ```
+
+3. Colle le code HTML du composant (donné sur sa page) là où tu le veux.
+
 ## Structure du dépôt
 
 ```
 kola-ui/
 ├── packages/kola_flutter/   ← les composants Flutter
 ├── packages/kola-react/     ← les composants React (Tailwind CSS v4)
+├── packages/kola-vue/       ← les composants Vue (Tailwind CSS v4)
+├── packages/kola-html/      ← les composants HTML (CSS + JavaScript, sans dépendance)
 ├── apps/preview/            ← la vitrine Flutter Web (aperçus en direct)
+├── apps/preview-vue/        ← la vitrine Vue (aperçus en direct)
 ├── apps/web/                ← le site Next.js
-└── scripts/build-preview.sh ← compile la vitrine et la place dans le site
+├── scripts/build-preview.sh     ← compile la vitrine Flutter et la place dans le site
+└── scripts/build-preview-vue.sh ← compile la vitrine Vue et la place dans le site
 ```
 
 ## Développer en local
@@ -88,6 +122,7 @@ cd packages/kola_flutter && flutter test
 
 # Compiler la vitrine dans le site, puis lancer le site
 bash scripts/build-preview.sh
+bash scripts/build-preview-vue.sh
 cd apps/web && npm install && npm run build && npm start
 ```
 

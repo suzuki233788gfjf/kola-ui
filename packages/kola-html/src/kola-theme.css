@@ -1,0 +1,71 @@
+/*
+ * Kola UI — thème HTML (CSS pur, sans dépendance).
+ * Ajoute ce fichier une seule fois, avant les fichiers des composants :
+ *   <link rel="stylesheet" href="kola/kola-theme.css">
+ *
+ * Ta couleur :  :root { --kola-primary: #9a3324; }
+ * Mode sombre :  <html data-kola-theme="dark">
+ */
+:root,
+[data-kola-theme="light"] {
+  --kola-primary: #1f6b45;
+  --kola-on-primary: #ffffff;
+  --kola-bg: #fafaf8;
+  --kola-surface: #ffffff;
+  --kola-surface-muted: #f4f3ef;
+  --kola-ink: #1a1712;
+  --kola-ink-muted: #4f4a42;
+  --kola-ink-subtle: #6b655b;
+  --kola-line: #e6e3dc;
+  --kola-line-strong: #d9d5cc;
+  --kola-danger: #9a3324;
+  --kola-success: #1f6b45;
+  --kola-warning: #8a5a00;
+  --kola-info: #2d4a8a;
+  --kola-radius: 12px;
+  --kola-tint: color-mix(in srgb, var(--kola-primary) 12%, transparent);
+  color-scheme: light;
+}
+.dark,
+[data-kola-theme="dark"] {
+  --kola-on-primary: #ffffff;
+  --kola-bg: #14120f;
+  --kola-surface: #1d1a16;
+  --kola-surface-muted: #26221d;
+  --kola-ink: #f3f1ec;
+  --kola-ink-muted: #c9c4ba;
+  --kola-ink-subtle: #a39d92;
+  --kola-line: #3a352d;
+  --kola-line-strong: #4a443a;
+  --kola-danger: #e8806f;
+  --kola-success: #6cc495;
+  --kola-warning: #e3b05a;
+  --kola-info: #95b3f0;
+  color-scheme: dark;
+}
+[class^="kola-"], [class*=" kola-"], [class^="kola-"] *, [class*=" kola-"] * { box-sizing: border-box; }
+.kola-spinner {
+  display: inline-block; width: 20px; height: 20px; border-radius: 50%;
+  border: 2px solid currentColor; border-top-color: transparent;
+  animation: kola-spin 0.8s linear infinite;
+}
+@keyframes kola-spin { to { transform: rotate(360deg); } }
+.kola-dialog {
+  border: 1px solid var(--kola-line); border-radius: 20px; padding: 0;
+  background: var(--kola-surface); color: var(--kola-ink);
+  box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.25);
+  width: calc(100% - 32px); max-width: 420px;
+}
+.kola-dialog::backdrop { background: rgba(0, 0, 0, 0.4); }
+.kola-dialog--sheet {
+  margin: auto 0 0 0; width: 100%; max-width: 100%;
+  border-radius: 24px 24px 0 0;
+}
+.kola-icon-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 40px; height: 40px; border: 0; border-radius: 999px;
+  background: transparent; color: inherit; cursor: pointer;
+}
+.kola-icon-btn:hover { background: var(--kola-tint); }
+.kola-icon-btn:disabled { opacity: 0.3; cursor: default; background: transparent; }
+.kola-icon-btn svg { width: 20px; height: 20px; }

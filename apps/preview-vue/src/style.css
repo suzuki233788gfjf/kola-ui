@@ -1,0 +1,6 @@
+@import "tailwindcss";
+@import "../../../packages/kola-vue/src/kola-theme.css";
+@source "../../../packages/kola-vue/src";
+
+html, body, #app { height: 100%; margin: 0; }
+body { font-family: "IBM Plex Sans", system-ui, sans-serif; background: var(--kola-surface-muted); }
