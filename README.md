@@ -126,6 +126,16 @@ bash scripts/build-preview-vue.sh
 cd apps/web && npm install && npm run build && npm start
 ```
 
+## Licence
+
+[MIT](LICENSE) : tu peux utiliser, copier et modifier les composants librement, y compris dans des projets
+payants. Garde simplement la mention de la licence.
+
+## Contribuer
+
+Un bug, une idée de composant ? Ouvre une [issue](https://github.com/suzuki233788gfjf/kola-ui/issues).
+Et si Kola UI t'aide, une ⭐ sur GitHub fait toujours plaisir.
+
 ---
 
 <p align="center">Fait avec soin à Yaoundé 🇨🇲</p>
