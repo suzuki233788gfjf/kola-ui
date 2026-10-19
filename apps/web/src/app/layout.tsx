@@ -3,6 +3,7 @@ import { Bricolage_Grotesque, IBM_Plex_Sans, JetBrains_Mono } from "next/font/go
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { FrameworkProvider } from "@/components/Framework";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const bricolage = Bricolage_Grotesque({
@@ -44,6 +45,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <div className="flex-1">{children}</div>
           <Footer />
         </FrameworkProvider>
+        {/* Statistiques de visite Vercel (sans cookies) : à activer dans le tableau de bord Vercel */}
+        <Analytics />
       </body>
     </html>
   );

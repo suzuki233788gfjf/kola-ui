@@ -9,11 +9,7 @@
   Pensés pour nos usages : numéros +237, montants en FCFA, paiement Mobile Money.
 </p>
 
-<p align="center">
-  <a href="https://kola-ui.vercel.app">Voir le site</a> ·
-  <a href="https://kola-ui.vercel.app/composants">Catalogue</a> ·
-  <a href="https://kola-ui.vercel.app/demarrer">Démarrer</a>
-</p>
+<!-- Les liens vers le site seront ajoutés quand l'adresse publique sera choisie (kolaui.dev). -->
 
 ---
 
@@ -57,7 +53,7 @@ Aucun n'ajoute de dépendance : seulement Flutter, ou seulement React + Tailwind
    );
    ```
 
-3. Copie le composant dont tu as besoin depuis le [catalogue](https://kola-ui.vercel.app/composants).
+3. Copie le composant dont tu as besoin depuis le catalogue du site (`/composants`).
 
 ### React
 
