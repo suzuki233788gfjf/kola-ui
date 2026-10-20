@@ -1,0 +1,26 @@
+/* Kola UI — Code OTP : les cases pour le code reçu par SMS (à utiliser avec kola-text-field.css). */
+.kola-otp__boxes { position: relative; display: flex; gap: 8px; max-width: 100%; align-self: flex-start; }
+.kola-otp__box {
+  display: flex; align-items: center; justify-content: center; flex: 0 1 auto; width: 48px; min-width: 0; aspect-ratio: 6 / 7;
+  border: 1px solid var(--kola-line-strong); border-radius: var(--kola-radius); background: var(--kola-surface);
+  color: var(--kola-ink); font-size: 1.5rem; font-weight: 600; transition: border-color 0.15s, box-shadow 0.15s;
+}
+.kola-otp__box.is-active { border-color: var(--kola-primary); box-shadow: 0 0 0 1px var(--kola-primary); }
+.kola-otp__caret { width: 2px; height: 50%; border-radius: 2px; background: var(--kola-primary); animation: kola-otp-blink 1s steps(1) infinite; }
+@keyframes kola-otp-blink { 50% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .kola-otp__caret { animation: none; } }
+.kola-field.is-invalid .kola-otp__box { border-color: var(--kola-danger); box-shadow: 0 0 0 1px var(--kola-danger); }
+/* Le vrai champ, invisible, posé sur les cases. */
+.kola-otp__input {
+  position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; padding: 0; border: 0; outline: 0;
+  background: transparent; color: transparent; caret-color: transparent; font-size: 16px; opacity: 0; cursor: text;
+}
+.kola-otp__input:disabled { cursor: not-allowed; }
+.kola-otp.is-disabled .kola-otp__boxes { opacity: 0.6; }
+.kola-otp__resend { margin: 4px 0 0; font-size: 0.875rem; color: var(--kola-ink-subtle); }
+.kola-otp__resend button {
+  padding: 0; border: 0; background: none; font: inherit; font-weight: 600; color: var(--kola-primary); cursor: pointer;
+}
+.kola-otp__resend button:hover { text-decoration: underline; }
+.kola-otp__resend button:disabled { opacity: 0.6; cursor: default; text-decoration: none; }
+.kola-otp__timer { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }

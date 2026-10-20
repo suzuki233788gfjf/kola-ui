@@ -35,7 +35,7 @@ class _Bridge {
 /// Vitrine Kola UI. Le composant et ses options viennent de l'adresse, par exemple :
 ///   ?c=bouton&variant=outline&color=9A3324&dark=1
 ///   ?c=champ-de-texte&label=E-mail&error=1
-///   ?c=telephone-237   ·   ?c=montant-fcfa   ·   ?c=mobile-money&amount=5000
+///   ?c=telephone-237   ·   ?c=montant-fcfa   ·   ?c=code-otp&length=4   ·   ?c=mobile-money&amount=5000
 ///   ?c=date-picker&range=1   ·   ?c=confirmation&sheet=1   ·   ?c=notifications&type=error
 ///   ?c=selecteur   ·   ?c=carte&variant=stat   ·   ?c=tableau&mobile=1
 class PreviewApp extends StatefulWidget {
@@ -238,6 +238,8 @@ Widget _buildComponent(Map<String, String> p) {
           },
         ),
       );
+    case 'code-otp':
+      return SizedBox(width: 360, child: _OtpDemo(p: p));
     case 'montant-fcfa':
       final value = int.tryParse(p['value'] ?? '');
       return SizedBox(
@@ -261,6 +263,52 @@ Widget _buildComponent(Map<String, String> p) {
         icon: p['icon'] == '1' ? Icons.check : null,
         onPressed: () {},
       );
+  }
+}
+
+/// Démo du code OTP : affiche le code saisi quand toutes les cases sont remplies.
+class _OtpDemo extends StatefulWidget {
+  const _OtpDemo({required this.p});
+  final Map<String, String> p;
+
+  @override
+  State<_OtpDemo> createState() => _OtpDemoState();
+}
+
+class _OtpDemoState extends State<_OtpDemo> {
+  String? _done;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = widget.p;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        KolaOtpField(
+          label: p['label'] ?? 'Code de vérification',
+          length: p['length'] == '4' ? 4 : 6,
+          helper: 'Envoyé par SMS au 6 77 12 34 56',
+          errorText: p['error'] == '1' ? 'Code incorrect. Il te reste 2 essais.' : null,
+          onChanged: (_) => setState(() => _done = null),
+          onCompleted: (code) => setState(() => _done = code),
+          onResend: p['resend'] == '0' ? null : () async {},
+        ),
+        const SizedBox(height: 16),
+        SizedBox(
+          height: 20,
+          child: _done == null
+              ? null
+              : Text(
+                  '✓ Code $_done saisi',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+        ),
+      ],
+    );
   }
 }
 

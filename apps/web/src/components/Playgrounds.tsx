@@ -5,6 +5,7 @@ import { KolaButton } from "@kola/react/kola-button";
 import { KolaTextField } from "@kola/react/kola-text-field";
 import { KolaPhoneField } from "@kola/react/kola-phone-field";
 import { KolaAmountField, formatAmount } from "@kola/react/kola-amount-field";
+import { KolaOtpField } from "@kola/react/kola-otp-field";
 import { KolaMobileMoneyForm, KolaMobileMoneyError } from "@kola/react/kola-mobile-money-form";
 import { KolaDatePicker, KolaDateFr, type KolaDateRange } from "@kola/react/kola-date-picker";
 import { useKolaConfirm } from "@kola/react/kola-confirm";
@@ -374,6 +375,138 @@ function AmountPlayground() {
   );
 }
 
+
+/* ---------- Code OTP ---------- */
+
+const OTP_HELPER = "Envoyé par SMS au 6 77 12 34 56";
+const OTP_ERROR = "Code incorrect. Il te reste 2 essais.";
+
+function OtpDemo({ label, length, error, resend }: { label: string; length: number; error: boolean; resend: boolean }) {
+  const [done, setDone] = useState<string | null>(null);
+  return (
+    <div className="flex w-full max-w-[360px] flex-col gap-4">
+      <KolaOtpField
+        label={label}
+        length={length}
+        helper={OTP_HELPER}
+        error={error ? OTP_ERROR : null}
+        onChange={() => setDone(null)}
+        onComplete={setDone}
+        onResend={resend ? () => {} : undefined}
+      />
+      <p aria-live="polite" className="min-h-5 text-sm font-semibold text-kola-primary">
+        {done && `✓ Code ${done} saisi`}
+      </p>
+    </div>
+  );
+}
+
+function OtpPlayground() {
+  const [color, setColor] = useState(DEFAULT_COLOR);
+  const [label, setLabel] = useState("Code de vérification");
+  const [four, setFour] = useState(false);
+  const [error, setError] = useState(false);
+  const [resend, setResend] = useState(true);
+  const [dark, setDark] = useState(false);
+  const length = four ? 4 : 6;
+  const customLabel = label !== "Code de vérification";
+
+  const usage = lines(
+    "KolaOtpField(",
+    four && "  length: 4,",
+    customLabel && `  label: ${dartString(label)},`,
+    `  helper: ${dartString(OTP_HELPER)},`,
+    error && `  errorText: ${dartString(OTP_ERROR)},`,
+    "  onCompleted: (code) async {",
+    "    // code = '482913' : vérifie-le auprès de ton serveur.",
+    "  },",
+    resend && "  onResend: () async {",
+    resend && "    // Redemande un SMS à ton serveur.",
+    resend && "  },",
+    ")",
+  );
+  const reactUsage = lines(
+    "<KolaOtpField",
+    four && "  length={4}",
+    customLabel && `  ${jsxString("label", label)}`,
+    `  ${jsxString("helper", OTP_HELPER)}`,
+    error && `  ${jsxString("error", OTP_ERROR)}`,
+    "  onComplete={(code) => {",
+    '    // code = "482913" : vérifie-le auprès de ton serveur.',
+    "  }}",
+    resend && "  onResend={async () => {",
+    resend && "    // Redemande un SMS à ton serveur.",
+    resend && "  }}",
+    "/>",
+  );
+  const vueUsage = lines(
+    "<KolaOtpField",
+    '  v-model="code"',
+    four && '  :length="4"',
+    customLabel && `  ${vAttr("label", label)}`,
+    `  ${vAttr("helper", OTP_HELPER)}`,
+    error && `  ${vAttr("error", OTP_ERROR)}`,
+    resend && '  :on-resend="renvoyerSms"',
+    '  @complete="verifier"',
+    "/>",
+    '<!-- verifier("482913") est appelé quand toutes les cases sont remplies -->',
+  );
+  const markup = lines(
+    `<div class="kola-field kola-otp${error ? " is-invalid" : ""}" data-kola-otp data-length="${length}"${resend ? ' data-resend="60"' : ""}>`,
+    `  <label class="kola-field__label" for="code">${esc(label)}</label>`,
+    `  <input class="kola-otp__input" id="code" name="code"${error ? ' aria-invalid="true"' : ""}>`,
+    `  <p class="kola-field__help">${esc(error ? OTP_ERROR : OTP_HELPER)}</p>`,
+    "</div>",
+  );
+  const htmlUsage = lines(
+    markup,
+    "<script>",
+    '  const bloc = document.querySelector("[data-kola-otp]");',
+    '  bloc.addEventListener("kola-complete", (e) => {',
+    '    // e.detail.code = "482913" : vérifie-le auprès de ton serveur.',
+    "  });",
+    resend && '  bloc.addEventListener("kola-resend", () => {',
+    resend && "    // Redemande un SMS à ton serveur.",
+    resend && "  });",
+    "</script>",
+  );
+  const htmlPreview = lines(
+    box(360, markup + '\n<p id="statut" aria-live="polite" style="min-height:20px;margin:16px 0 0;font-size:14px;font-weight:600;color:var(--kola-primary)"></p>'),
+    "<script>",
+    '  const bloc = document.querySelector("[data-kola-otp]"), statut = document.getElementById("statut");',
+    '  bloc.addEventListener("kola-change", () => (statut.textContent = ""));',
+    '  bloc.addEventListener("kola-complete", (e) => (statut.textContent = "✓ Code " + e.detail.code + " saisi"));',
+    "</script>",
+  );
+
+  return (
+    <Playground
+      slug="code-otp"
+      color={color}
+      usage={usage}
+      reactUsage={reactUsage}
+      vueUsage={vueUsage}
+      htmlUsage={htmlUsage}
+      htmlPreview={htmlPreview}
+      react={<OtpDemo key={`${length}${error}${resend}`} label={label} length={length} error={error} resend={resend} />}
+      params={{ color, label: customLabel ? label : undefined, length: four ? "4" : undefined, error: flag(error), resend: resend ? undefined : "0", dark: flag(dark) }}
+      controls={
+        <>
+          <ColorPicker value={color} onChange={setColor} />
+          <TextInput id="label" label="Label" value={label} onChange={setLabel} />
+          <Toggle label="Code à 4 chiffres" checked={four} onChange={setFour} />
+          <Toggle label="Bouton « Renvoyer le code »" checked={resend} onChange={setResend} />
+          <Toggle label="Afficher une erreur" checked={error} onChange={setError} />
+          <Toggle label="Mode sombre" checked={dark} onChange={setDark} />
+          <p className="text-sm leading-relaxed text-ink-muted">
+            Essaie de copier <code className="font-mono">Votre code Kola : 482913</code> puis de le coller dans les
+            cases : seul le code est gardé.
+          </p>
+        </>
+      }
+    />
+  );
+}
 
 /* ---------- Mobile Money ---------- */
 
@@ -1311,6 +1444,7 @@ export const PLAYGROUNDS: Record<string, () => React.JSX.Element> = {
   "champ-de-texte": TextFieldPlayground,
   "telephone-237": PhonePlayground,
   "montant-fcfa": AmountPlayground,
+  "code-otp": OtpPlayground,
   "mobile-money": MobileMoneyPlayground,
   "date-picker": DatePickerPlayground,
   confirmation: ConfirmPlayground,

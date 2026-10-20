@@ -28,7 +28,7 @@ export function LostKola({ className = "" }: { className?: string }) {
           <ellipse cx="14" cy="31" rx="2.5" ry="5.5" transform="rotate(20 14 31)" fill="#fff" fillOpacity=".2" />
           <g className="kola-leaf">
             <path d="M32 13c1-7 8-11 16-10-1 7-7 11-16 10z" fill="#4E9E6F" />
-            <path d="M33 12c4-3 8-5 12-6" stroke="#1F6B45" strokeWidth="1.5" strokeLinecap="round" />
+            <path d="M33 12c4-3 8-5 12-6" stroke="#1F6B45" strokeWidth="1.5" strokeLinecap="round" fill="none" />
           </g>
         </g>
         {/* visage */}

@@ -53,6 +53,12 @@ export const COMPONENTS: KolaComponent[] = [
     requires: all(["champ-de-texte"]),
   },
   {
+    slug: "code-otp", name: "Code OTP", category: "Formulaires", available: true,
+    summary: "Les cases du code SMS : collage du SMS entier, compte à rebours pour renvoyer.",
+    files: { flutter: ["kola_otp_field.dart"], react: ["kola-otp-field.tsx"], vue: ["KolaOtpField.vue"], html: ["kola-otp-field.css", "kola-otp-field.js"] },
+    requires: { html: ["champ-de-texte"] },
+  },
+  {
     slug: "mobile-money", name: "Formulaire Mobile Money", category: "Paiement", available: true,
     summary: "MTN MoMo et Orange Money : saisie, attente de confirmation, succès, échec.",
     files: { flutter: ["kola_mobile_money_form.dart"], react: ["kola-mobile-money-form.tsx"], vue: ["KolaMobileMoneyForm.vue"], html: ["kola-mobile-money-form.css", "kola-mobile-money-form.js"] },

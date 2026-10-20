@@ -4,6 +4,7 @@ import KolaButton from "@kola/KolaButton.vue";
 import KolaTextField from "@kola/KolaTextField.vue";
 import KolaPhoneField from "@kola/KolaPhoneField.vue";
 import KolaAmountField, { formatAmount } from "@kola/KolaAmountField.vue";
+import KolaOtpField from "@kola/KolaOtpField.vue";
 import KolaMobileMoneyForm, { KolaMobileMoneyError, type KolaMobileMoneyRequest } from "@kola/KolaMobileMoneyForm.vue";
 import KolaDatePicker from "@kola/KolaDatePicker.vue";
 import { KolaDateFr, type KolaDateRange } from "@kola/KolaCalendar.vue";
@@ -23,6 +24,11 @@ const toast = useKolaToast();
 const email = ref("");
 const phone = ref((p.value ?? "").replace(/\D/g, ""));
 const amount = ref<number | null>(p.value ? Number(p.value.replace(/\D/g, "")) || null : null);
+
+// Code OTP
+const otp = ref("");
+const otpDone = ref<string | null>(null);
+const noop = async () => {};
 
 // Mobile Money (simulation : 3 s, échec si le numéro finit par 0)
 async function simulate(d: KolaMobileMoneyRequest) {
@@ -111,6 +117,20 @@ const variant = (["primary", "secondary", "outline", "text"].includes(p.variant)
   <KolaPhoneField v-else-if="p.c === 'telephone-237'" v-model="phone" class="w-full max-w-[340px]" :label="p.label ?? 'Téléphone'" />
 
   <KolaAmountField v-else-if="p.c === 'montant-fcfa'" v-model="amount" class="w-full max-w-[340px]" :label="p.label ?? 'Montant'" :min="100" />
+
+  <div v-else-if="p.c === 'code-otp'" class="flex w-full max-w-[360px] flex-col gap-4">
+    <KolaOtpField
+      v-model="otp"
+      :label="p.label ?? 'Code de vérification'"
+      :length="p.length === '4' ? 4 : 6"
+      helper="Envoyé par SMS au 6 77 12 34 56"
+      :error="p.error === '1' ? 'Code incorrect. Il te reste 2 essais.' : null"
+      :on-resend="p.resend === '0' ? undefined : noop"
+      @update:model-value="otpDone = null"
+      @complete="otpDone = $event"
+    />
+    <p aria-live="polite" class="min-h-5 text-sm font-semibold text-kola-primary">{{ otpDone ? `✓ Code ${otpDone} saisi` : "" }}</p>
+  </div>
 
   <div v-else-if="p.c === 'mobile-money'" class="w-full max-w-[400px]">
     <KolaMobileMoneyForm :title="p.title ?? 'Payer par Mobile Money'" :amount="p.amount ? Number(p.amount) : undefined" :on-pay="simulate" />

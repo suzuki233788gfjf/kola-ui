@@ -31,6 +31,7 @@ pas de mise à jour qui casse tout.
 | **Champ de texte** | Label, aide, erreur, validation, mot de passe masquable |
 | **Téléphone +237** | Formatage `6 77 12 34 56`, détection MTN / Orange |
 | **Montant FCFA** | Séparateur de milliers à la saisie, valeur entière |
+| **Code OTP** | Les cases du code SMS, collage du SMS entier, compte à rebours « Renvoyer le code » |
 | **Formulaire Mobile Money** | MTN MoMo et Orange Money : saisie, attente, succès, échec |
 | **Date picker** | Une date ou une période, en français, semaine qui commence le lundi |
 | **Sélecteur avec recherche** | Liste filtrable, recherche sans accents |
