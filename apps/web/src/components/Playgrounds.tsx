@@ -7,6 +7,9 @@ import { KolaPhoneField } from "@kola/react/kola-phone-field";
 import { KolaAmountField, formatAmount } from "@kola/react/kola-amount-field";
 import { KolaOtpField } from "@kola/react/kola-otp-field";
 import { KolaBottomNav, KolaTabs } from "@kola/react/kola-tabs";
+import { KolaSearch } from "@kola/react/kola-search";
+import { KolaFileUpload } from "@kola/react/kola-file-upload";
+import { KolaEmptyState, KolaSkeletonList } from "@kola/react/kola-empty-state";
 import { KolaMobileMoneyForm, KolaMobileMoneyError } from "@kola/react/kola-mobile-money-form";
 import { KolaDatePicker, KolaDateFr, type KolaDateRange } from "@kola/react/kola-date-picker";
 import { useKolaConfirm } from "@kola/react/kola-confirm";
@@ -759,6 +762,399 @@ function TabsPlayground() {
               ? "Dans ton app, la barre se colle en bas de l'écran (fixed)."
               : "Au clavier : flèches gauche et droite, Début et Fin."}
           </p>
+        </>
+      }
+    />
+  );
+}
+
+/* ---------- Recherche ---------- */
+
+function SearchDemo({ label, showLabel, placeholder }: { label: string; showLabel: boolean; placeholder: string }) {
+  const [result, setResult] = useState("");
+  return (
+    <div className="flex w-full max-w-[360px] flex-col gap-3 self-start pt-10">
+      <KolaSearch
+        label={label}
+        showLabel={showLabel}
+        placeholder={placeholder}
+        options={CITIES}
+        onChange={() => setResult("")}
+        onSelect={(o) => setResult(`Ville choisie : ${o.label} (${o.subtitle})`)}
+        onSubmit={(q) => setResult(q.trim() ? `Recherche lancée : « ${q.trim()} »` : "")}
+      />
+      <p aria-live="polite" className="min-h-5 text-sm font-semibold text-kola-primary">{result}</p>
+    </div>
+  );
+}
+
+function SearchPlayground() {
+  const [color, setColor] = useState(DEFAULT_COLOR);
+  const [label, setLabel] = useState("Ville");
+  const [placeholder, setPlaceholder] = useState("Rechercher une ville");
+  const [showLabel, setShowLabel] = useState(true);
+  const [dark, setDark] = useState(false);
+
+  const usage = lines(
+    "KolaSearchField(",
+    showLabel && `  label: ${dartString(label)},`,
+    `  hint: ${dartString(placeholder)},`,
+    "  options: const [",
+    ...CITIES.slice(0, 3).map((c) => `    KolaSearchOption(${dartString(c.label)}, subtitle: ${dartString(c.subtitle)}),`),
+    "  ],",
+    "  onSelected: (ville) {",
+    "    // ville.label = 'Yaoundé'",
+    "  },",
+    "  onSubmitted: (texte) {",
+    "    // Entrée sans choisir de suggestion : lance ta recherche.",
+    "  },",
+    ")",
+  );
+  const reactUsage = lines(
+    "<KolaSearch",
+    `  ${jsxString("label", label)}`,
+    showLabel && "  showLabel",
+    `  ${jsxString("placeholder", placeholder)}`,
+    "  options={[",
+    ...CITIES.slice(0, 3).map((c) => `    { label: "${c.label}", subtitle: "${c.subtitle}" },`),
+    "  ]}",
+    "  onSelect={(ville) => {",
+    '    // ville.label = "Yaoundé"',
+    "  }}",
+    "  onSubmit={(texte) => {",
+    "    // Entrée sans choisir de suggestion : lance ta recherche.",
+    "  }}",
+    "/>",
+  );
+  const vueUsage = lines(
+    "<KolaSearch",
+    '  v-model="texte"',
+    `  ${vAttr("label", label)}`,
+    showLabel && "  show-label",
+    `  ${vAttr("placeholder", placeholder)}`,
+    '  :options="villes"',
+    '  @select="(ville) => choisir(ville)"',
+    '  @submit="lancerRecherche"',
+    "/>",
+    "<!-- villes = [{ label: 'Douala', subtitle: 'Littoral' }, …] -->",
+  );
+  const htmlSearch = (cities: typeof CITIES) =>
+    lines(
+      '<div class="kola-field kola-search" data-kola-search>',
+      `  <label class="kola-field__label${showLabel ? "" : " kola-sr-only"}" for="ville">${esc(label)}</label>`,
+      '  <div class="kola-field__box">',
+      `    <input class="kola-field__input" id="ville" name="ville" type="search" list="villes" placeholder="${esc(placeholder)}">`,
+      "  </div>",
+      '  <datalist id="villes">',
+      ...cities.map((c) => `    <option value="${esc(c.label)}">${esc(c.subtitle)}</option>`),
+      "  </datalist>",
+      "</div>",
+    );
+  const htmlUsage = lines(
+    htmlSearch(CITIES.slice(0, 3)),
+    "<script>",
+    '  const recherche = document.querySelector("[data-kola-search]");',
+    '  recherche.addEventListener("kola-select", (e) => {',
+    '    // e.detail.label = "Yaoundé", e.detail.subtitle = "Centre"',
+    "  });",
+    '  recherche.addEventListener("kola-search", (e) => {',
+    "    // Entrée sans choisir de suggestion : e.detail.query",
+    "  });",
+    "</script>",
+  );
+  const htmlPreview = lines(
+    '<div style="width:360px;max-width:100%;align-self:flex-start;padding-top:40px">',
+    htmlSearch(CITIES),
+    '<p id="statut" aria-live="polite" style="min-height:20px;margin:12px 0 0;font-size:14px;font-weight:600;color:var(--kola-primary)"></p>',
+    "</div>",
+    "<script>",
+    '  const r = document.querySelector("[data-kola-search]"), statut = document.getElementById("statut");',
+    '  r.addEventListener("input", () => (statut.textContent = ""));',
+    '  r.addEventListener("kola-select", (e) => (statut.textContent = "Ville choisie : " + e.detail.label + " (" + e.detail.subtitle + ")"));',
+    '  r.addEventListener("kola-search", (e) => (statut.textContent = e.detail.query.trim() ? "Recherche lancée : « " + e.detail.query.trim() + " »" : ""));',
+    "</script>",
+  );
+
+  return (
+    <Playground
+      slug="recherche"
+      color={color}
+      usage={usage}
+      reactUsage={reactUsage}
+      vueUsage={vueUsage}
+      htmlUsage={htmlUsage}
+      htmlPreview={htmlPreview}
+      height={420}
+      react={<SearchDemo label={label} showLabel={showLabel} placeholder={placeholder} />}
+      params={{ color, label, placeholder, showLabel: showLabel ? undefined : "0", dark: flag(dark) }}
+      controls={
+        <>
+          <ColorPicker value={color} onChange={setColor} />
+          <TextInput id="label" label="Label" value={label} onChange={setLabel} />
+          <TextInput id="placeholder" label="Texte d'exemple" value={placeholder} onChange={setPlaceholder} />
+          <Toggle label="Afficher le label" checked={showLabel} onChange={setShowLabel} />
+          <Toggle label="Mode sombre" checked={dark} onChange={setDark} />
+          <p className="text-sm leading-relaxed text-ink-muted">
+            Essaie <code className="font-mono">yaounde</code> (sans accent), <code className="font-mono">ba</code> ou{" "}
+            <code className="font-mono">sud</code>, puis les flèches et Entrée.
+          </p>
+        </>
+      }
+    />
+  );
+}
+
+/* ---------- Téléversement ---------- */
+
+/** Simulation : 1,5 seconde d'envoi, échec si le nom contient « echec ». */
+async function simulateUpload(file: { name: string }, progress: (v: number) => void) {
+  for (let i = 1; i <= 10; i++) {
+    await new Promise((r) => setTimeout(r, 150));
+    progress(i / 10);
+  }
+  if (file.name.toLowerCase().includes("echec")) throw new Error("Échec simulé");
+}
+
+function UploadPlayground() {
+  const [color, setColor] = useState(DEFAULT_COLOR);
+  const [label, setLabel] = useState("Pièce d'identité");
+  const [multiple, setMultiple] = useState(true);
+  const [upload, setUpload] = useState(true);
+  const [dark, setDark] = useState(false);
+
+  const usage = lines(
+    "KolaFileUpload(",
+    `  label: ${dartString(label)},`,
+    !multiple && "  multiple: false,",
+    "  // Flutter n'a pas de sélecteur intégré : utilise file_picker ou image_picker.",
+    "  onPick: () async {",
+    "    final r = await FilePicker.platform.pickFiles(withData: true, allowMultiple: true);",
+    "    return [",
+    "      for (final f in r?.files ?? <PlatformFile>[])",
+    "        KolaFile(name: f.name, size: f.size, bytes: f.bytes),",
+    "    ];",
+    "  },",
+    upload && "  onUpload: (fichier, progression) async {",
+    upload && "    // Envoie le fichier à ton serveur et appelle progression(0.0 → 1.0).",
+    upload && "  },",
+    "  onChanged: (fichiers) {",
+    "    // Les fichiers prêts.",
+    "  },",
+    ")",
+  );
+  const reactUsage = lines(
+    "<KolaFileUpload",
+    `  ${jsxString("label", label)}`,
+    '  accept="image/*,.pdf"',
+    !multiple && "  multiple={false}",
+    upload && "  onUpload={async (fichier, progression) => {",
+    upload && "    // Envoie le fichier à ton serveur et appelle progression(0 → 1).",
+    upload && "  }}",
+    "  onChange={(fichiers) => {",
+    "    // Les fichiers prêts.",
+    "  }}",
+    "/>",
+  );
+  const vueUsage = lines(
+    "<KolaFileUpload",
+    `  ${vAttr("label", label)}`,
+    '  accept="image/*,.pdf"',
+    !multiple && '  :multiple="false"',
+    upload && '  :on-upload="envoyer"',
+    '  @change="(fichiers) => (pieces = fichiers)"',
+    "/>",
+    upload && "<!-- async function envoyer(fichier, progression) { … progression(0.5) … } -->",
+  );
+  const markup = lines(
+    '<div class="kola-field kola-upload" data-kola-upload data-max-size="5" data-max-files="5">',
+    `  <span class="kola-field__label" id="pj">${esc(label)}</span>`,
+    '  <label class="kola-upload__zone">',
+    `    <input class="kola-upload__input" type="file" name="pieces[]" accept="image/*,.pdf"${multiple ? " multiple" : ""} aria-labelledby="pj">`,
+    "  </label>",
+    "</div>",
+  );
+  const htmlUsage = upload
+    ? lines(
+        markup,
+        "<script>",
+        '  KolaUpload.onUpload(document.querySelector("[data-kola-upload]"), async (fichier, progression) => {',
+        "    // Envoie le fichier à ton serveur et appelle progression(0 → 1).",
+        "  });",
+        "</script>",
+      )
+    : markup;
+  const htmlPreview = lines(
+    box(400, markup),
+    upload && "<script>",
+    upload && '  KolaUpload.onUpload(document.querySelector("[data-kola-upload]"), async (fichier, progression) => {',
+    upload && "    for (let i = 1; i <= 10; i++) { await new Promise((r) => setTimeout(r, 150)); progression(i / 10); }",
+    upload && '    if (fichier.name.toLowerCase().includes("echec")) throw new Error("Échec simulé");',
+    upload && "  });",
+    upload && "</script>",
+  );
+
+  return (
+    <Playground
+      slug="televersement"
+      color={color}
+      usage={usage}
+      reactUsage={reactUsage}
+      vueUsage={vueUsage}
+      htmlUsage={htmlUsage}
+      htmlPreview={htmlPreview}
+      height={440}
+      react={
+        <KolaFileUpload
+          key={`${multiple}${upload}`}
+          className="w-full max-w-[400px]"
+          label={label}
+          multiple={multiple}
+          onUpload={upload ? simulateUpload : undefined}
+        />
+      }
+      params={{ color, label, multiple: multiple ? undefined : "0", upload: upload ? undefined : "0", dark: flag(dark) }}
+      controls={
+        <>
+          <ColorPicker value={color} onChange={setColor} />
+          <TextInput id="label" label="Label" value={label} onChange={setLabel} />
+          <Toggle label="Plusieurs fichiers" checked={multiple} onChange={setMultiple} />
+          <Toggle label="Envoi simulé (progression)" checked={upload} onChange={setUpload} />
+          <Toggle label="Mode sombre" checked={dark} onChange={setDark} />
+          <p className="text-sm leading-relaxed text-ink-muted">
+            Essaie une photo, un fichier de plus de 5 Mo ou un .docx pour voir les erreurs. Un fichier dont le nom
+            contient « echec » simule un envoi raté.
+          </p>
+        </>
+      }
+    />
+  );
+}
+
+/* ---------- États vides et chargement ---------- */
+
+const INBOX_D = "M3 13l2.5-7h13L21 13M3 13v6h18v-6M3 13h5l1.5 2.5h5L16 13h5";
+const WIFI_OFF_D = "M2 2l20 20M8.5 16.5a5 5 0 0 1 7 0M5 13a10 10 0 0 1 5.2-2.8M19 13a10 10 0 0 0-2.2-1.6M2 9a15 15 0 0 1 4.6-2.8M22 9a15 15 0 0 0-11-3.9M12 20h.01";
+
+function StatesDemo({ loading, error, action }: { loading: boolean; error: boolean; action: boolean }) {
+  const [retrying, setRetrying] = useState(false);
+  const retry = () => {
+    setRetrying(true);
+    setTimeout(() => setRetrying(false), 1500);
+  };
+  return (
+    <div className="w-full max-w-[400px] rounded-[20px] border border-kola-line bg-kola-surface p-4">
+      {loading || retrying ? (
+        <KolaSkeletonList rows={4} />
+      ) : error ? (
+        <KolaEmptyState
+          tone="error"
+          icon={<Svg d={WIFI_OFF_D} />}
+          title="Pas de connexion"
+          message="Vérifie ta connexion internet puis réessaie."
+          action={action ? <KolaButton label="Réessayer" variant="outline" onClick={retry} /> : undefined}
+        />
+      ) : (
+        <KolaEmptyState
+          title="Aucune commande pour le moment"
+          message="Tes commandes apparaîtront ici dès qu'un client achète."
+          action={action ? <KolaButton label="Partager ma boutique" /> : undefined}
+        />
+      )}
+    </div>
+  );
+}
+
+function StatesPlayground() {
+  const [color, setColor] = useState(DEFAULT_COLOR);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
+  const [action, setAction] = useState(true);
+  const [dark, setDark] = useState(false);
+
+  const empty = error
+    ? { icon: "Icons.wifi_off", title: "Pas de connexion", message: "Vérifie ta connexion internet puis réessaie.", button: "Réessayer" }
+    : { icon: "Icons.receipt_long_outlined", title: "Aucune commande pour le moment", message: "Tes commandes apparaîtront ici dès qu'un client achète.", button: "Partager ma boutique" };
+
+  const usage = loading
+    ? lines("chargement", "    ? const KolaSkeletonList(rows: 4)", "    : MaListe(commandes)")
+    : lines(
+        "KolaEmptyState(",
+        error && "  tone: KolaEmptyTone.error,",
+        `  icon: ${empty.icon},`,
+        `  title: ${dartString(empty.title)},`,
+        `  message: ${dartString(empty.message)},`,
+        action && `  action: KolaButton(label: ${dartString(empty.button)}${error ? ", variant: KolaButtonVariant.outline" : ""}, onPressed: () {}),`,
+        ")",
+      );
+  const reactUsage = loading
+    ? "{chargement ? <KolaSkeletonList rows={4} /> : <MaListe commandes={commandes} />}"
+    : lines(
+        "<KolaEmptyState",
+        error && '  tone="error"',
+        `  icon={<Icone${error ? "PasDeReseau" : "Boite"} />}`,
+        `  ${jsxString("title", empty.title)}`,
+        `  ${jsxString("message", empty.message)}`,
+        action && `  action={<KolaButton ${jsxString("label", empty.button)}${error ? ' variant="outline" onClick={recharger}' : ""} />}`,
+        "/>",
+      );
+  const vueUsage = loading
+    ? lines('<KolaSkeletonList v-if="chargement" :rows="4" />', '<MaListe v-else :commandes="commandes" />')
+    : lines(
+        `<KolaEmptyState${error ? ' tone="error"' : ""} ${vAttr("title", empty.title)} ${vAttr("message", empty.message)}>`,
+        `  <template #icon><Icone${error ? "PasDeReseau" : "Boite"} /></template>`,
+        action && `  <template #action><KolaButton ${vAttr("label", empty.button)}${error ? ' variant="outline" @click="recharger"' : ""} /></template>`,
+        "</KolaEmptyState>",
+      );
+  const skeletonHtml = lines(
+    '<div class="kola-skeleton-list" role="status" aria-label="Chargement…">',
+    ...[0, 1, 2, 3].map((i) =>
+      lines(
+        '  <div class="kola-skeleton-row">',
+        '    <span class="kola-skeleton kola-skeleton--circle"></span>',
+        `    <span class="kola-skeleton-lines"><span class="kola-skeleton" style="width:${i % 2 ? 55 : 70}%"></span><span class="kola-skeleton kola-skeleton--small" style="width:${i % 2 ? 60 : 45}%"></span></span>`,
+        '    <span class="kola-skeleton" style="width:56px"></span>',
+        "  </div>",
+      ),
+    ),
+    "</div>",
+  );
+  const emptyHtml = lines(
+    `<div class="kola-empty${error ? ' kola-empty--error" role="alert' : ""}">`,
+    `  <span class="kola-empty__icon">${SVG(error ? WIFI_OFF_D : INBOX_D)}</span>`,
+    `  <p class="kola-empty__title">${esc(empty.title)}</p>`,
+    `  <p class="kola-empty__text">${esc(empty.message)}</p>`,
+    action && `  <div class="kola-empty__action"><button type="button" class="kola-btn kola-btn--${error ? "outline" : "primary"}">${esc(empty.button)}</button></div>`,
+    "</div>",
+  );
+  const htmlUsage = loading ? skeletonHtml : emptyHtml;
+  const htmlPreview = `<div style="width:400px;max-width:100%;padding:16px;border:1px solid var(--kola-line);border-radius:20px;background:var(--kola-surface)">\n${htmlUsage}\n</div>`;
+
+  return (
+    <Playground
+      slug="etats-vides"
+      color={color}
+      usage={usage}
+      reactUsage={reactUsage}
+      vueUsage={vueUsage}
+      htmlUsage={htmlUsage}
+      htmlPreview={htmlPreview}
+      height={400}
+      react={<StatesDemo loading={loading} error={error} action={action} />}
+      params={{ color, loading: flag(loading), error: flag(error), action: action ? undefined : "0", dark: flag(dark) }}
+      controls={
+        <>
+          <ColorPicker value={color} onChange={setColor} />
+          <Toggle label="Chargement (squelettes)" checked={loading} onChange={setLoading} />
+          {!loading && (
+            <>
+              <Toggle label="Version erreur" checked={error} onChange={setError} />
+              <Toggle label="Bouton d'action" checked={action} onChange={setAction} />
+            </>
+          )}
+          <Toggle label="Mode sombre" checked={dark} onChange={setDark} />
+          {error && !loading && (
+            <p className="text-sm leading-relaxed text-ink-muted">Clique sur « Réessayer » : les squelettes s&apos;affichent pendant le rechargement.</p>
+          )}
         </>
       }
     />
@@ -1710,6 +2106,9 @@ export const PLAYGROUNDS: Record<string, () => React.JSX.Element> = {
   carte: CardPlayground,
   tableau: TablePlayground,
   onglets: TabsPlayground,
+  recherche: SearchPlayground,
+  televersement: UploadPlayground,
+  "etats-vides": StatesPlayground,
 };
 
 /** Affiche le playground d'un composant. Rendu côté navigateur : la page serveur

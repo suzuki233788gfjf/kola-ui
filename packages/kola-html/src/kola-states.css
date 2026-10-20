@@ -1,0 +1,33 @@
+/*
+ * Kola UI — États vides et chargement (CSS seul, sans JavaScript).
+ *
+ * État vide :
+ * <div class="kola-empty">
+ *   <span class="kola-empty__icon"><svg …/></span>
+ *   <p class="kola-empty__title">Aucune commande pour le moment</p>
+ *   <p class="kola-empty__text">Tes commandes apparaîtront ici dès qu'un client achète.</p>
+ *   <div class="kola-empty__action"><button class="kola-btn kola-btn--primary">Partager ma boutique</button></div>
+ * </div>
+ * Erreur : class="kola-empty kola-empty--error" role="alert"
+ *
+ * Chargement : <span class="kola-skeleton" style="width:120px"></span>  ·  kola-skeleton--circle
+ */
+.kola-empty { display: flex; flex-direction: column; align-items: center; padding: 32px 24px; text-align: center; color: var(--kola-ink); }
+.kola-empty__icon {
+  display: flex; align-items: center; justify-content: center; width: 64px; height: 64px; margin-bottom: 16px;
+  border-radius: 999px; background: var(--kola-tint); color: var(--kola-primary);
+}
+.kola-empty__icon svg { width: 30px; height: 30px; }
+.kola-empty--error .kola-empty__icon { background: color-mix(in srgb, var(--kola-danger) 12%, transparent); color: var(--kola-danger); }
+.kola-empty__title { margin: 0; font-size: 1.125rem; font-weight: 700; }
+.kola-empty__text { max-width: 320px; margin: 6px 0 0; line-height: 1.6; color: var(--kola-ink-subtle); }
+.kola-empty__action { margin-top: 20px; }
+
+.kola-skeleton { display: block; height: 14px; border-radius: 6px; background: var(--kola-line); animation: kola-pulse 1.8s ease-in-out infinite; }
+.kola-skeleton--small { height: 12px; }
+.kola-skeleton--circle { flex: none; width: 40px; height: 40px; border-radius: 999px; }
+@keyframes kola-pulse { 50% { opacity: 0.45; } }
+@media (prefers-reduced-motion: reduce) { .kola-skeleton { animation: none; } }
+.kola-skeleton-list { display: flex; flex-direction: column; }
+.kola-skeleton-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; }
+.kola-skeleton-lines { display: flex; flex: 1; min-width: 0; flex-direction: column; gap: 8px; }

@@ -32,6 +32,8 @@ pas de mise à jour qui casse tout.
 | **Téléphone +237** | Formatage `6 77 12 34 56`, détection MTN / Orange |
 | **Montant FCFA** | Séparateur de milliers à la saisie, valeur entière |
 | **Code OTP** | Les cases du code SMS, collage du SMS entier, compte à rebours « Renvoyer le code » |
+| **Recherche** | Suggestions pendant la frappe, sans accents, au clavier |
+| **Téléversement de fichier** | Glisser-déposer, aperçu, taille et format vérifiés, progression |
 | **Formulaire Mobile Money** | MTN MoMo et Orange Money : saisie, attente, succès, échec |
 | **Date picker** | Une date ou une période, en français, semaine qui commence le lundi |
 | **Sélecteur avec recherche** | Liste filtrable, recherche sans accents |
@@ -40,6 +42,7 @@ pas de mise à jour qui casse tout.
 | **Onglets** | Onglets en haut de page et barre d'onglets en bas d'une app mobile, avec compteurs |
 | **Confirmation** | Boîte de dialogue ou panneau du bas, en une ligne |
 | **Notifications** | Succès, erreur, info, avertissement |
+| **États vides et chargement** | Écran vide ou d'erreur avec action, squelettes de chargement |
 
 Chaque composant existe en **Flutter**, **React**, **Vue** et **HTML**, avec le même comportement.
 Aucun n'ajoute de dépendance :

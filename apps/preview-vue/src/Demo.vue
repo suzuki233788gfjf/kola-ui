@@ -7,6 +7,10 @@ import KolaAmountField, { formatAmount } from "@kola/KolaAmountField.vue";
 import KolaOtpField from "@kola/KolaOtpField.vue";
 import KolaTabs from "@kola/KolaTabs.vue";
 import KolaBottomNav from "@kola/KolaBottomNav.vue";
+import KolaSearch, { type KolaSearchOption } from "@kola/KolaSearch.vue";
+import KolaFileUpload from "@kola/KolaFileUpload.vue";
+import KolaEmptyState from "@kola/KolaEmptyState.vue";
+import KolaSkeletonList from "@kola/KolaSkeletonList.vue";
 import KolaMobileMoneyForm, { KolaMobileMoneyError, type KolaMobileMoneyRequest } from "@kola/KolaMobileMoneyForm.vue";
 import KolaDatePicker from "@kola/KolaDatePicker.vue";
 import { KolaDateFr, type KolaDateRange } from "@kola/KolaCalendar.vue";
@@ -58,6 +62,32 @@ const navTabs = [
   { value: "Profil", label: "Profil", icon: icon("M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0") },
 ];
 const page = ref("Accueil");
+
+// Recherche
+const searchText = ref("");
+const searchResult = ref("");
+function onCity(o: KolaSearchOption) {
+  searchResult.value = `Ville choisie : ${o.label} (${o.subtitle})`;
+}
+function onSearch(q: string) {
+  searchResult.value = q.trim() ? `Recherche lancée : « ${q.trim()} »` : "";
+}
+
+// Téléversement (simulation : 1,5 s, échec si le nom contient « echec »)
+async function simulateUpload(file: File, progress: (v: number) => void) {
+  for (let i = 1; i <= 10; i++) {
+    await new Promise((r) => setTimeout(r, 150));
+    progress(i / 10);
+  }
+  if (file.name.toLowerCase().includes("echec")) throw new Error("Échec simulé");
+}
+
+// États
+const retrying = ref(false);
+function retry() {
+  retrying.value = true;
+  setTimeout(() => (retrying.value = false), 1500);
+}
 
 // Mobile Money (simulation : 3 s, échec si le numéro finit par 0)
 async function simulate(d: KolaMobileMoneyRequest) {
@@ -187,6 +217,43 @@ const variant = (["primary", "secondary", "outline", "text"].includes(p.variant)
       </ul>
     </template>
   </KolaTabs>
+
+  <div v-else-if="p.c === 'recherche'" class="flex w-full max-w-[360px] flex-col gap-3 self-start pt-10">
+    <KolaSearch
+      v-model="searchText"
+      :label="p.label ?? 'Ville'"
+      :show-label="p.showLabel !== '0'"
+      :placeholder="p.placeholder ?? 'Rechercher une ville'"
+      :options="cities"
+      @update:model-value="searchResult = ''"
+      @select="onCity"
+      @submit="onSearch"
+    />
+    <p aria-live="polite" class="min-h-5 text-sm font-semibold text-kola-primary">{{ searchResult }}</p>
+  </div>
+
+  <div v-else-if="p.c === 'televersement'" class="w-full max-w-[400px]">
+    <KolaFileUpload
+      :label="p.label ?? 'Pièce d\'identité'"
+      :multiple="p.multiple !== '0'"
+      :on-upload="p.upload === '0' ? undefined : simulateUpload"
+    />
+  </div>
+
+  <div v-else-if="p.c === 'etats-vides'" class="w-full max-w-[400px] rounded-[20px] border border-kola-line bg-kola-surface p-4">
+    <KolaSkeletonList v-if="p.loading === '1' || retrying" :rows="4" />
+    <KolaEmptyState v-else-if="p.error === '1'" tone="error" title="Pas de connexion" message="Vérifie ta connexion internet puis réessaie.">
+      <template #icon>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 2l20 20M8.5 16.5a5 5 0 0 1 7 0M5 13a10 10 0 0 1 5.2-2.8M19 13a10 10 0 0 0-2.2-1.6M2 9a15 15 0 0 1 4.6-2.8M22 9a15 15 0 0 0-11-3.9M12 20h.01" />
+        </svg>
+      </template>
+      <template v-if="p.action !== '0'" #action><KolaButton label="Réessayer" variant="outline" @click="retry" /></template>
+    </KolaEmptyState>
+    <KolaEmptyState v-else title="Aucune commande pour le moment" message="Tes commandes apparaîtront ici dès qu'un client achète.">
+      <template v-if="p.action !== '0'" #action><KolaButton label="Partager ma boutique" /></template>
+    </KolaEmptyState>
+  </div>
 
   <div v-else-if="p.c === 'mobile-money'" class="w-full max-w-[400px]">
     <KolaMobileMoneyForm :title="p.title ?? 'Payer par Mobile Money'" :amount="p.amount ? Number(p.amount) : undefined" :on-pay="simulate" />

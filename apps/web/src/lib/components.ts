@@ -59,6 +59,18 @@ export const COMPONENTS: KolaComponent[] = [
     requires: { html: ["champ-de-texte"] },
   },
   {
+    slug: "recherche", name: "Recherche", category: "Formulaires", available: true,
+    summary: "Suggestions pendant la frappe, sans accents (« yaounde » trouve Yaoundé), au clavier.",
+    files: { flutter: ["kola_search_field.dart"], react: ["kola-search.tsx"], vue: ["KolaSearch.vue"], html: ["kola-search.css", "kola-search.js"] },
+    requires: { html: ["champ-de-texte"] },
+  },
+  {
+    slug: "televersement", name: "Téléversement de fichier", category: "Formulaires", available: true,
+    summary: "Photo, CNI, reçu : glisser-déposer, aperçu, taille et format vérifiés, progression.",
+    files: { flutter: ["kola_file_upload.dart"], react: ["kola-file-upload.tsx"], vue: ["KolaFileUpload.vue"], html: ["kola-file-upload.css", "kola-file-upload.js"] },
+    requires: { html: ["champ-de-texte"] },
+  },
+  {
     slug: "mobile-money", name: "Formulaire Mobile Money", category: "Paiement", available: true,
     summary: "MTN MoMo et Orange Money : saisie, attente de confirmation, succès, échec.",
     files: { flutter: ["kola_mobile_money_form.dart"], react: ["kola-mobile-money-form.tsx"], vue: ["KolaMobileMoneyForm.vue"], html: ["kola-mobile-money-form.css", "kola-mobile-money-form.js"] },
@@ -83,6 +95,12 @@ export const COMPONENTS: KolaComponent[] = [
     slug: "confirmation", name: "Confirmation", category: "Retours", available: true,
     summary: "Boîte de dialogue ou panneau du bas, en une ligne.",
     files: { flutter: ["kola_confirm.dart"], react: ["kola-confirm.tsx"], vue: ["KolaConfirm.vue"], html: ["kola-confirm.css", "kola-confirm.js"] },
+    requires: { html: ["bouton"] },
+  },
+  {
+    slug: "etats-vides", name: "États vides et chargement", category: "Retours", available: true,
+    summary: "Écran vide ou d'erreur avec action, et squelettes de chargement.",
+    files: { flutter: ["kola_empty_state.dart"], react: ["kola-empty-state.tsx"], vue: ["KolaEmptyState.vue", "KolaSkeleton.vue", "KolaSkeletonList.vue"], html: ["kola-states.css"] },
     requires: { html: ["bouton"] },
   },
   {

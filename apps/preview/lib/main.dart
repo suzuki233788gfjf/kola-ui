@@ -38,6 +38,7 @@ class _Bridge {
 ///   ?c=telephone-237   ·   ?c=montant-fcfa   ·   ?c=code-otp&length=4   ·   ?c=mobile-money&amount=5000
 ///   ?c=date-picker&range=1   ·   ?c=confirmation&sheet=1   ·   ?c=notifications&type=error
 ///   ?c=onglets&variant=pills   ·   ?c=onglets&nav=bottom
+///   ?c=recherche   ·   ?c=televersement   ·   ?c=etats-vides&error=1
 ///   ?c=selecteur   ·   ?c=carte&variant=stat   ·   ?c=tableau&mobile=1
 class PreviewApp extends StatefulWidget {
   const PreviewApp({super.key});
@@ -243,6 +244,12 @@ Widget _buildComponent(Map<String, String> p) {
       return SizedBox(width: 360, child: _OtpDemo(p: p));
     case 'onglets':
       return SizedBox(width: p['nav'] == 'bottom' ? 360 : 420, child: _TabsDemo(p: p));
+    case 'recherche':
+      return SizedBox(width: 360, child: _SearchDemo(p: p));
+    case 'televersement':
+      return SizedBox(width: 400, child: _UploadDemo(p: p));
+    case 'etats-vides':
+      return _StatesDemo(p: p);
     case 'montant-fcfa':
       final value = int.tryParse(p['value'] ?? '');
       return SizedBox(
@@ -415,6 +422,157 @@ class _TabsDemoState extends State<_TabsDemo> {
             ),
           ),
       ],
+    );
+  }
+}
+
+/// Démo de la recherche : affiche la ville choisie ou la recherche lancée.
+class _SearchDemo extends StatefulWidget {
+  const _SearchDemo({required this.p});
+  final Map<String, String> p;
+
+  @override
+  State<_SearchDemo> createState() => _SearchDemoState();
+}
+
+class _SearchDemoState extends State<_SearchDemo> {
+  String _result = '';
+
+  static const _villes = [
+    KolaSearchOption('Douala', subtitle: 'Littoral'),
+    KolaSearchOption('Yaoundé', subtitle: 'Centre'),
+    KolaSearchOption('Bafoussam', subtitle: 'Ouest'),
+    KolaSearchOption('Bamenda', subtitle: 'Nord-Ouest'),
+    KolaSearchOption('Garoua', subtitle: 'Nord'),
+    KolaSearchOption('Maroua', subtitle: 'Extrême-Nord'),
+    KolaSearchOption('Ngaoundéré', subtitle: 'Adamaoua'),
+    KolaSearchOption('Bertoua', subtitle: 'Est'),
+    KolaSearchOption('Ebolowa', subtitle: 'Sud'),
+    KolaSearchOption('Buea', subtitle: 'Sud-Ouest'),
+    KolaSearchOption('Kribi', subtitle: 'Sud'),
+    KolaSearchOption('Limbé', subtitle: 'Sud-Ouest'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final p = widget.p;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 220),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          KolaSearchField(
+            label: p['showLabel'] == '0' ? null : (p['label'] ?? 'Ville'),
+            hint: p['placeholder'] ?? 'Rechercher une ville',
+            options: _villes,
+            onChanged: (_) => setState(() => _result = ''),
+            onSelected: (o) => setState(() => _result = 'Ville choisie : ${o.label} (${o.subtitle})'),
+            onSubmitted: (t) => setState(() => _result = t.trim().isEmpty ? '' : 'Recherche lancée : « ${t.trim()} »'),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            height: 20,
+            child: Text(
+              _result,
+              style: TextStyle(fontWeight: FontWeight.w600, color: Theme.of(context).colorScheme.primary),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Démo du téléversement : faux fichiers (Flutter web n'a pas de sélecteur sans paquet).
+class _UploadDemo extends StatefulWidget {
+  const _UploadDemo({required this.p});
+  final Map<String, String> p;
+
+  @override
+  State<_UploadDemo> createState() => _UploadDemoState();
+}
+
+class _UploadDemoState extends State<_UploadDemo> {
+  int _pick = 0;
+
+  static const _lots = [
+    [KolaFile(name: 'cni-recto.jpg', size: 1258291), KolaFile(name: 'releve-bancaire.pdf', size: 6710886)],
+    [KolaFile(name: 'recu-paiement.png', size: 491520), KolaFile(name: 'contrat.docx', size: 122880)],
+    [KolaFile(name: 'cni-verso.jpg', size: 1153434)],
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final p = widget.p;
+    return KolaFileUpload(
+      label: p['label'] ?? 'Pièce d\'identité',
+      multiple: p['multiple'] != '0',
+      helper: 'Démo : des fichiers d\'exemple sont ajoutés · JPG, PNG ou PDF · 5 Mo max',
+      onPick: () async => _lots[_pick++ % _lots.length],
+      onUpload: p['upload'] == '0'
+          ? null
+          : (file, progress) async {
+              for (var i = 1; i <= 10; i++) {
+                await Future<void>.delayed(const Duration(milliseconds: 150));
+                progress(i / 10);
+              }
+            },
+    );
+  }
+}
+
+/// Démo des états : vide, erreur (avec « Réessayer ») ou chargement.
+class _StatesDemo extends StatefulWidget {
+  const _StatesDemo({required this.p});
+  final Map<String, String> p;
+
+  @override
+  State<_StatesDemo> createState() => _StatesDemoState();
+}
+
+class _StatesDemoState extends State<_StatesDemo> {
+  bool _retrying = false;
+
+  Future<void> _retry() async {
+    setState(() => _retrying = true);
+    await Future<void>.delayed(const Duration(milliseconds: 1500));
+    if (mounted) setState(() => _retrying = false);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final p = widget.p;
+    final scheme = Theme.of(context).colorScheme;
+    final action = p['action'] != '0';
+    final Widget child;
+    if (p['loading'] == '1' || _retrying) {
+      child = const KolaSkeletonList(rows: 4);
+    } else if (p['error'] == '1') {
+      child = KolaEmptyState(
+        tone: KolaEmptyTone.error,
+        icon: Icons.wifi_off,
+        title: 'Pas de connexion',
+        message: 'Vérifie ta connexion internet puis réessaie.',
+        action: action ? KolaButton(label: 'Réessayer', variant: KolaButtonVariant.outline, onPressed: _retry) : null,
+      );
+    } else {
+      child = KolaEmptyState(
+        icon: Icons.receipt_long_outlined,
+        title: 'Aucune commande pour le moment',
+        message: 'Tes commandes apparaîtront ici dès qu\'un client achète.',
+        action: action ? KolaButton(label: 'Partager ma boutique', onPressed: () {}) : null,
+      );
+    }
+    return Container(
+      width: 400,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: scheme.surface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: scheme.outlineVariant),
+      ),
+      child: child,
     );
   }
 }

@@ -1,0 +1,35 @@
+/* Kola UI — Téléversement de fichiers (à utiliser avec kola-text-field.css). */
+.kola-upload { gap: 8px; }
+.kola-upload__zone {
+  position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 20px 16px;
+  border: 1px dashed var(--kola-line-strong); border-radius: var(--kola-radius); background: var(--kola-surface-muted);
+  text-align: center; cursor: pointer; transition: border-color 0.15s, background 0.15s;
+}
+.kola-upload__zone:hover, .kola-upload__zone.is-dragging { border-color: var(--kola-primary); }
+.kola-upload__zone.is-dragging { background: var(--kola-tint); }
+.kola-upload__zone:focus-within { box-shadow: 0 0 0 2px var(--kola-primary); }
+.kola-upload__zone.is-disabled { opacity: 0.6; cursor: not-allowed; }
+.kola-upload__zone > svg { width: 28px; height: 28px; margin-bottom: 4px; color: var(--kola-primary); }
+.kola-upload__input { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; }
+.kola-upload__title { font-weight: 600; color: var(--kola-primary); }
+.kola-upload__hint { font-size: 0.875rem; color: var(--kola-ink-subtle); }
+.kola-upload__notice { margin: 0; font-size: 0.875rem; color: var(--kola-danger); }
+.kola-upload__list { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.kola-upload__item {
+  display: flex; align-items: center; gap: 12px; padding: 10px 4px 10px 10px;
+  border: 1px solid var(--kola-line); border-radius: var(--kola-radius); background: var(--kola-surface);
+}
+.kola-upload__item.is-error { border-color: var(--kola-danger); }
+.kola-upload__thumb {
+  display: flex; align-items: center; justify-content: center; flex: none; width: 44px; height: 44px;
+  overflow: hidden; border-radius: 8px; background: var(--kola-tint); color: var(--kola-primary);
+}
+.kola-upload__thumb img { width: 100%; height: 100%; object-fit: cover; }
+.kola-upload__thumb svg { width: 22px; height: 22px; }
+.kola-upload__info { display: flex; flex: 1; min-width: 0; flex-direction: column; gap: 2px; }
+.kola-upload__name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.875rem; font-weight: 600; color: var(--kola-ink); }
+.kola-upload__status { font-size: 0.75rem; color: var(--kola-ink-subtle); }
+.kola-upload__item.is-error .kola-upload__status { color: var(--kola-danger); }
+.kola-upload__bar { height: 4px; margin-top: 4px; overflow: hidden; border-radius: 999px; background: var(--kola-line); }
+.kola-upload__bar > span { display: block; height: 100%; border-radius: 999px; background: var(--kola-primary); transition: width 0.2s; }
+.kola-upload__remove { width: 36px; height: 36px; color: var(--kola-ink-subtle); }
