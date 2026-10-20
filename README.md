@@ -37,6 +37,7 @@ pas de mise à jour qui casse tout.
 | **Sélecteur avec recherche** | Liste filtrable, recherche sans accents |
 | **Carte** | Carte produit et carte statistique |
 | **Tableau de données** | Tri, pagination, cartes automatiques sur mobile |
+| **Onglets** | Onglets en haut de page et barre d'onglets en bas d'une app mobile, avec compteurs |
 | **Confirmation** | Boîte de dialogue ou panneau du bas, en une ligne |
 | **Notifications** | Succès, erreur, info, avertissement |
 

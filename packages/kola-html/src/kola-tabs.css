@@ -1,0 +1,50 @@
+/* Kola UI — Onglets (haut de page) et barre d'onglets du bas (app mobile). */
+.kola-tabs { display: flex; flex-direction: column; gap: 16px; min-width: 0; color: var(--kola-ink); }
+.kola-tabs__list { display: flex; overflow-x: auto; scrollbar-width: none; border-bottom: 1px solid var(--kola-line); }
+.kola-tabs__tab {
+  display: inline-flex; flex-shrink: 0; align-items: center; justify-content: center; gap: 8px;
+  min-height: 48px; margin-bottom: -1px; padding: 0 16px; border: 0; border-bottom: 2px solid transparent;
+  background: none; color: var(--kola-ink-subtle); font: inherit; font-size: 0.875rem; font-weight: 600;
+  white-space: nowrap; cursor: pointer; transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.kola-tabs__tab:hover { color: var(--kola-ink); }
+.kola-tabs__tab:focus-visible { outline: 2px solid var(--kola-primary); outline-offset: -2px; }
+.kola-tabs__tab[aria-selected="true"] { border-bottom-color: var(--kola-primary); color: var(--kola-primary); }
+.kola-tabs__tab svg { width: 18px; height: 18px; flex: none; }
+/* Pastilles */
+.kola-tabs--pills .kola-tabs__list { gap: 4px; align-self: flex-start; max-width: 100%; padding: 4px; border: 0; border-radius: 14px; background: var(--kola-surface-muted); }
+.kola-tabs--pills .kola-tabs__tab { min-height: 40px; margin: 0; padding: 0 14px; border: 0; border-radius: 10px; }
+.kola-tabs--pills .kola-tabs__tab[aria-selected="true"] { background: var(--kola-surface); color: var(--kola-ink); box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
+/* Pleine largeur */
+.kola-tabs--expand .kola-tabs__list { align-self: stretch; overflow: visible; }
+.kola-tabs--expand .kola-tabs__tab { flex: 1 1 0; min-width: 0; padding: 0 8px; }
+.kola-tabs__panel { border-radius: var(--kola-radius); }
+.kola-tabs__panel:focus-visible { outline: 2px solid var(--kola-primary); }
+
+/* Petit compteur rond */
+.kola-badge {
+  display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 6px;
+  border-radius: 999px; background: var(--kola-primary); color: var(--kola-on-primary);
+  font-size: 11px; font-weight: 700; line-height: 1;
+}
+
+/* Barre d'onglets du bas */
+.kola-bottom-nav { border-top: 1px solid var(--kola-line); background: var(--kola-surface); padding-bottom: env(safe-area-inset-bottom); }
+.kola-bottom-nav--fixed { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; }
+.kola-bottom-nav__list { display: flex; max-width: 512px; height: 68px; margin: 0 auto; padding: 0; list-style: none; }
+.kola-bottom-nav__list > li { flex: 1 1 0; min-width: 0; }
+.kola-bottom-nav__item {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  width: 100%; height: 100%; padding: 0; border: 0; background: none; color: var(--kola-ink-subtle);
+  font: inherit; font-size: 0.75rem; font-weight: 500; text-decoration: none; cursor: pointer;
+}
+.kola-bottom-nav__item:focus-visible { outline: 2px solid var(--kola-primary); outline-offset: -2px; }
+.kola-bottom-nav__icon {
+  position: relative; display: flex; align-items: center; justify-content: center;
+  width: 56px; height: 30px; border-radius: 999px; transition: background 0.15s;
+}
+.kola-bottom-nav__icon svg { width: 22px; height: 22px; }
+.kola-bottom-nav__icon .kola-badge { position: absolute; top: -4px; right: 6px; }
+.kola-bottom-nav__label { max-width: 100%; padding: 0 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.kola-bottom-nav__item[aria-current="page"] { color: var(--kola-primary); font-weight: 600; }
+.kola-bottom-nav__item[aria-current="page"] .kola-bottom-nav__icon { background: var(--kola-tint); }

@@ -1,6 +1,6 @@
 import type { Framework } from "@/lib/frameworks";
 
-export type Category = "Formulaires" | "Paiement" | "Affichage" | "Retours";
+export type Category = "Formulaires" | "Paiement" | "Affichage" | "Navigation" | "Retours";
 
 export type KolaComponent = {
   slug: string;
@@ -75,6 +75,11 @@ export const COMPONENTS: KolaComponent[] = [
     files: { flutter: ["kola_data_table.dart"], react: ["kola-data-table.tsx"], vue: ["KolaDataTable.vue"], html: ["kola-data-table.css", "kola-data-table.js"] },
   },
   {
+    slug: "onglets", name: "Onglets", category: "Navigation", available: true,
+    summary: "Onglets en haut de page et barre d'onglets en bas d'une app mobile, avec compteurs.",
+    files: { flutter: ["kola_tabs.dart"], react: ["kola-tabs.tsx"], vue: ["KolaTabs.vue", "KolaBottomNav.vue"], html: ["kola-tabs.css", "kola-tabs.js"] },
+  },
+  {
     slug: "confirmation", name: "Confirmation", category: "Retours", available: true,
     summary: "Boîte de dialogue ou panneau du bas, en une ligne.",
     files: { flutter: ["kola_confirm.dart"], react: ["kola-confirm.tsx"], vue: ["KolaConfirm.vue"], html: ["kola-confirm.css", "kola-confirm.js"] },
@@ -104,7 +109,7 @@ export const TARGET_FOLDER: Record<Framework, string> = {
   html: "kola/",
 };
 
-export const CATEGORIES: Category[] = ["Formulaires", "Paiement", "Affichage", "Retours"];
+export const CATEGORIES: Category[] = ["Formulaires", "Paiement", "Affichage", "Navigation", "Retours"];
 
 export function getComponent(slug: string) {
   return COMPONENTS.find((c) => c.slug === slug);

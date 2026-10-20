@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { h, markRaw, ref } from "vue";
 import KolaButton from "@kola/KolaButton.vue";
 import KolaTextField from "@kola/KolaTextField.vue";
 import KolaPhoneField from "@kola/KolaPhoneField.vue";
 import KolaAmountField, { formatAmount } from "@kola/KolaAmountField.vue";
 import KolaOtpField from "@kola/KolaOtpField.vue";
+import KolaTabs from "@kola/KolaTabs.vue";
+import KolaBottomNav from "@kola/KolaBottomNav.vue";
 import KolaMobileMoneyForm, { KolaMobileMoneyError, type KolaMobileMoneyRequest } from "@kola/KolaMobileMoneyForm.vue";
 import KolaDatePicker from "@kola/KolaDatePicker.vue";
 import { KolaDateFr, type KolaDateRange } from "@kola/KolaCalendar.vue";
@@ -29,6 +31,33 @@ const amount = ref<number | null>(p.value ? Number(p.value.replace(/\D/g, "")) |
 const otp = ref("");
 const otpDone = ref<string | null>(null);
 const noop = async () => {};
+
+// Onglets
+const icon = (d: string) =>
+  markRaw({ render: () => h("svg", { viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", "stroke-width": 2, "stroke-linecap": "round", "stroke-linejoin": "round" }, [h("path", { d })]) });
+const showBadges = p.badges !== "0";
+const showIcons = p.icons === "1";
+const orderTabs = [
+  { value: "en-cours", label: "En cours", icon: showIcons ? icon("M12 7v5l3 2M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z") : undefined, badge: showBadges ? 3 : 0 },
+  { value: "livrees", label: "Livrées", icon: showIcons ? icon("M5 12.5l4.5 4.5L19 7.5") : undefined },
+  { value: "annulees", label: "Annulées", icon: showIcons ? icon("M6 6l12 12M18 6L6 18") : undefined },
+];
+const orders: Record<string, [string, string, string][]> = {
+  "en-cours": [
+    ["#1042", "Riz parfumé 5 kg + huile 1 L", "6 100 FCFA"],
+    ["#1041", "Savon de ménage × 6", "2 100 FCFA"],
+    ["#1039", "Lait en poudre 400 g", "2 800 FCFA"],
+  ],
+  livrees: [["#1035", "Sucre 1 kg × 2", "1 800 FCFA"]],
+  annulees: [],
+};
+const navTabs = [
+  { value: "Accueil", label: "Accueil", icon: icon("M3 11l9-7 9 7M5 10v10h14V10") },
+  { value: "Commandes", label: "Commandes", icon: icon("M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6"), badge: showBadges ? 2 : 0 },
+  { value: "Paiements", label: "Paiements", icon: icon("M3 7h18v12H3zM16 13h2M5 7l2-3h10l2 3") },
+  { value: "Profil", label: "Profil", icon: icon("M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0") },
+];
+const page = ref("Accueil");
 
 // Mobile Money (simulation : 3 s, échec si le numéro finit par 0)
 async function simulate(d: KolaMobileMoneyRequest) {
@@ -131,6 +160,33 @@ const variant = (["primary", "secondary", "outline", "text"].includes(p.variant)
     />
     <p aria-live="polite" class="min-h-5 text-sm font-semibold text-kola-primary">{{ otpDone ? `✓ Code ${otpDone} saisi` : "" }}</p>
   </div>
+
+  <div
+    v-else-if="p.c === 'onglets' && p.nav === 'bottom'"
+    class="flex h-[300px] w-full max-w-[360px] flex-col overflow-hidden rounded-[20px] border border-kola-line bg-kola-bg"
+  >
+    <div class="flex flex-1 items-center justify-center font-semibold text-kola-ink">{{ page }}</div>
+    <KolaBottomNav v-model="page" :items="navTabs" />
+  </div>
+
+  <KolaTabs
+    v-else-if="p.c === 'onglets'"
+    class="w-full max-w-[420px]"
+    label="Commandes"
+    :variant="p.variant === 'pills' ? 'pills' : 'underline'"
+    :expand="p.expand === '1'"
+    :items="orderTabs"
+  >
+    <template #default="{ value }">
+      <p v-if="!orders[value].length" class="py-6 text-center text-sm text-kola-ink-subtle">Aucune commande annulée.</p>
+      <ul v-else class="flex flex-col divide-y divide-kola-line rounded-kola border border-kola-line bg-kola-surface">
+        <li v-for="[n, what, price] in orders[value]" :key="n" class="flex items-center justify-between gap-3 px-4 py-3 text-sm">
+          <span class="min-w-0"><span class="font-mono text-kola-ink-subtle">{{ n }}</span> <span class="text-kola-ink">{{ what }}</span></span>
+          <span class="shrink-0 font-semibold text-kola-ink">{{ price }}</span>
+        </li>
+      </ul>
+    </template>
+  </KolaTabs>
 
   <div v-else-if="p.c === 'mobile-money'" class="w-full max-w-[400px]">
     <KolaMobileMoneyForm :title="p.title ?? 'Payer par Mobile Money'" :amount="p.amount ? Number(p.amount) : undefined" :on-pay="simulate" />

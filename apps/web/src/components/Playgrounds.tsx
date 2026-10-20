@@ -6,6 +6,7 @@ import { KolaTextField } from "@kola/react/kola-text-field";
 import { KolaPhoneField } from "@kola/react/kola-phone-field";
 import { KolaAmountField, formatAmount } from "@kola/react/kola-amount-field";
 import { KolaOtpField } from "@kola/react/kola-otp-field";
+import { KolaBottomNav, KolaTabs } from "@kola/react/kola-tabs";
 import { KolaMobileMoneyForm, KolaMobileMoneyError } from "@kola/react/kola-mobile-money-form";
 import { KolaDatePicker, KolaDateFr, type KolaDateRange } from "@kola/react/kola-date-picker";
 import { useKolaConfirm } from "@kola/react/kola-confirm";
@@ -501,6 +502,262 @@ function OtpPlayground() {
           <p className="text-sm leading-relaxed text-ink-muted">
             Essaie de copier <code className="font-mono">Votre code Kola : 482913</code> puis de le coller dans les
             cases : seul le code est gardé.
+          </p>
+        </>
+      }
+    />
+  );
+}
+
+/* ---------- Onglets ---------- */
+
+const TAB_ICONS = {
+  clock: "M12 7v5l3 2M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z",
+  check: "M5 12.5l4.5 4.5L19 7.5",
+  x: "M6 6l12 12M18 6L6 18",
+  home: "M3 11l9-7 9 7M5 10v10h14V10",
+  receipt: "M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6",
+  wallet: "M3 7h18v12H3zM16 13h2M5 7l2-3h10l2 3",
+  user: "M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0",
+};
+/** Onglets du haut : [valeur, libellé, icône, icône Flutter, compteur] */
+const ORDER_TABS = [
+  ["en-cours", "En cours", "clock", "Icons.schedule", 3],
+  ["livrees", "Livrées", "check", "Icons.check_circle_outline", 0],
+  ["annulees", "Annulées", "x", "Icons.cancel_outlined", 0],
+] as const;
+/** Barre du bas : [valeur, libellé, icône, icône Flutter, compteur, lien] */
+const NAV_TABS = [
+  ["accueil", "Accueil", "home", "Icons.home_outlined", 0, "/"],
+  ["commandes", "Commandes", "receipt", "Icons.receipt_long_outlined", 2, "/commandes"],
+  ["paiements", "Paiements", "wallet", "Icons.account_balance_wallet_outlined", 0, "/paiements"],
+  ["profil", "Profil", "user", "Icons.person_outline", 0, "/profil"],
+] as const;
+const ORDERS: Record<string, [string, string, string][]> = {
+  "en-cours": [
+    ["#1042", "Riz parfumé 5 kg + huile 1 L", "6 100 FCFA"],
+    ["#1041", "Savon de ménage × 6", "2 100 FCFA"],
+    ["#1039", "Lait en poudre 400 g", "2 800 FCFA"],
+  ],
+  livrees: [["#1035", "Sucre 1 kg × 2", "1 800 FCFA"]],
+  annulees: [],
+};
+
+function OrderList({ status }: { status: string }) {
+  const rows = ORDERS[status] ?? [];
+  if (!rows.length) return <p className="py-6 text-center text-sm text-kola-ink-subtle">Aucune commande annulée.</p>;
+  return (
+    <ul className="flex flex-col divide-y divide-kola-line rounded-kola border border-kola-line bg-kola-surface">
+      {rows.map(([n, what, price]) => (
+        <li key={n} className="flex items-center justify-between gap-3 px-4 py-3 text-sm">
+          <span className="min-w-0">
+            <span className="font-mono text-kola-ink-subtle">{n}</span> <span className="text-kola-ink">{what}</span>
+          </span>
+          <span className="shrink-0 font-semibold text-kola-ink">{price}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function BottomNavDemo({ badges }: { badges: boolean }) {
+  const [page, setPage] = useState("accueil");
+  const title = NAV_TABS.find((t) => t[0] === page)?.[1];
+  return (
+    <div className="flex h-[300px] w-full max-w-[360px] flex-col overflow-hidden rounded-[20px] border border-kola-line bg-kola-bg">
+      <div className="flex flex-1 items-center justify-center font-semibold text-kola-ink">{title}</div>
+      <KolaBottomNav
+        value={page}
+        onChange={setPage}
+        items={NAV_TABS.map(([value, label, icon, , badge]) => ({ value, label, icon: <Svg d={TAB_ICONS[icon]} />, badge: badges ? badge : 0 }))}
+      />
+    </div>
+  );
+}
+
+function TabsPlayground() {
+  const [color, setColor] = useState(DEFAULT_COLOR);
+  const [bottom, setBottom] = useState(false);
+  const [pills, setPills] = useState(false);
+  const [icons, setIcons] = useState(false);
+  const [badges, setBadges] = useState(true);
+  const [expand, setExpand] = useState(false);
+  const [dark, setDark] = useState(false);
+  const showIcons = icons || bottom;
+
+  let usage: string, reactUsage: string, vueUsage: string, htmlUsage: string, htmlPreview: string;
+  if (bottom) {
+    usage = lines(
+      "Scaffold(",
+      "  body: pages[onglet],",
+      "  bottomNavigationBar: KolaBottomNav(",
+      "    items: const [",
+      ...NAV_TABS.map(([, label, , ficon, badge]) => `      KolaTabItem(label: ${dartString(label)}, icon: ${ficon}${badges && badge ? `, badge: ${badge}` : ""}),`),
+      "    ],",
+      "    selected: onglet,",
+      "    onChanged: (i) => setState(() => onglet = i),",
+      "  ),",
+      ")",
+    );
+    reactUsage = lines(
+      "<KolaBottomNav",
+      "  fixed",
+      "  value={page}",
+      "  onChange={setPage}",
+      "  items={[",
+      ...NAV_TABS.map(([value, label, icon, , badge]) => `    { value: "${value}", label: "${label}", icon: <Icone${icon[0].toUpperCase() + icon.slice(1)} />${badges && badge ? `, badge: ${badge}` : ""} },`),
+      "  ]}",
+      "/>",
+    );
+    vueUsage = lines(
+      '<KolaBottomNav v-model="page" fixed :items="[',
+      ...NAV_TABS.map(([value, label, icon, , badge]) => `  { value: '${value}', label: '${label}', icon: Icone${icon[0].toUpperCase() + icon.slice(1)}${badges && badge ? `, badge: ${badge}` : ""} },`),
+      ']" />',
+    );
+    const navItems = (asLinks: boolean) =>
+      NAV_TABS.map(([, label, icon, , badge, href], i) => {
+        const current = i === 0 ? ' aria-current="page"' : "";
+        const open = asLinks ? `<a class="kola-bottom-nav__item" href="${href}"${current}>` : `<button class="kola-bottom-nav__item"${current}>`;
+        const badgeHtml = badges && badge ? `<span class="kola-badge">${badge}</span>` : "";
+        return lines(
+          `    <li>${open}`,
+          `      <span class="kola-bottom-nav__icon">${SVG(TAB_ICONS[icon])}${badgeHtml}</span>`,
+          `      <span class="kola-bottom-nav__label">${esc(label)}</span>`,
+          `    ${asLinks ? "</a>" : "</button>"}</li>`,
+        );
+      });
+    htmlUsage = lines(
+      '<nav class="kola-bottom-nav kola-bottom-nav--fixed" aria-label="Navigation principale">',
+      '  <ul class="kola-bottom-nav__list">',
+      ...navItems(true),
+      "  </ul>",
+      "</nav>",
+    );
+    htmlPreview = lines(
+      '<div style="width:360px;max-width:100%;height:300px;display:flex;flex-direction:column;overflow:hidden;border:1px solid var(--kola-line);border-radius:20px;background:var(--kola-bg)">',
+      '  <div id="page" style="flex:1;display:flex;align-items:center;justify-content:center;font-weight:600;color:var(--kola-ink)">Accueil</div>',
+      '  <nav class="kola-bottom-nav" aria-label="Navigation principale" data-kola-bottom-nav>',
+      '    <ul class="kola-bottom-nav__list">',
+      ...navItems(false),
+      "    </ul>",
+      "  </nav>",
+      "</div>",
+      "<script>",
+      `  const titres = ${JSON.stringify(NAV_TABS.map((t) => t[1])).replace(/</g, "\\u003c")};`,
+      '  document.querySelector("[data-kola-bottom-nav]").addEventListener("kola-change", (e) => {',
+      '    document.getElementById("page").textContent = titres[e.detail.index];',
+      "  });",
+      "</script>",
+    );
+  } else {
+    usage = lines(
+      "KolaTabs(",
+      pills && "  variant: KolaTabsVariant.pills,",
+      expand && "  expand: true,",
+      "  items: const [",
+      ...ORDER_TABS.map(([, label, , ficon, badge]) => `    KolaTabItem(label: ${dartString(label)}${showIcons ? `, icon: ${ficon}` : ""}${badges && badge ? `, badge: ${badge}` : ""}),`),
+      "  ],",
+      "  selected: onglet,",
+      "  onChanged: (i) => setState(() => onglet = i),",
+      ")",
+      "// Puis affiche le contenu de l'onglet choisi, ex. pages[onglet]",
+    );
+    reactUsage = lines(
+      "<KolaTabs",
+      '  label="Commandes"',
+      pills && '  variant="pills"',
+      expand && "  expand",
+      "  items={[",
+      ...ORDER_TABS.map(([value, label, icon, , badge]) => `    { value: "${value}", label: "${label}"${showIcons ? `, icon: <Icone${icon[0].toUpperCase() + icon.slice(1)} />` : ""}${badges && badge ? `, badge: ${badge}` : ""} },`),
+      "  ]}",
+      ">",
+      "  {(onglet) => <ListeCommandes statut={onglet} />}",
+      "</KolaTabs>",
+    );
+    vueUsage = lines(
+      `<KolaTabs v-model="onglet" label="Commandes"${pills ? ' variant="pills"' : ""}${expand ? " expand" : ""} :items="[`,
+      ...ORDER_TABS.map(([value, label, icon, , badge]) => `  { value: '${value}', label: '${label}'${showIcons ? `, icon: Icone${icon[0].toUpperCase() + icon.slice(1)}` : ""}${badges && badge ? `, badge: ${badge}` : ""} },`),
+      ']">',
+      '  <template #default="{ value }"><ListeCommandes :statut="value" /></template>',
+      "</KolaTabs>",
+    );
+    const classes = ["kola-tabs", pills && "kola-tabs--pills", expand && "kola-tabs--expand"].filter(Boolean).join(" ");
+    const panel = (status: string) => {
+      const rows = ORDERS[status];
+      if (!rows.length) return '<p style="margin:0;padding:24px 0;text-align:center;font-size:14px;color:var(--kola-ink-subtle)">Aucune commande annulée.</p>';
+      return rows.map(([n, what, price]) => `<p style="display:flex;justify-content:space-between;gap:12px;margin:0;padding:12px 0;border-bottom:1px solid var(--kola-line);font-size:14px"><span><b>${n}</b> ${esc(what)}</span><b>${price}</b></p>`).join("");
+    };
+    const tabsHtml = (withContent: boolean) =>
+      lines(
+        `<div class="${classes}" data-kola-tabs>`,
+        '  <div class="kola-tabs__list" role="tablist" aria-label="Commandes">',
+        ...ORDER_TABS.map(([, label, icon, , badge], i) =>
+          `    <button class="kola-tabs__tab" role="tab"${i === 0 ? ' aria-selected="true"' : ""}>${showIcons ? SVG(TAB_ICONS[icon]) + " " : ""}${esc(label)}${badges && badge ? ` <span class="kola-badge">${badge}</span>` : ""}</button>`,
+        ),
+        "  </div>",
+        ...ORDER_TABS.map(([value], i) => `  <div class="kola-tabs__panel" role="tabpanel"${i ? " hidden" : ""}>${withContent ? panel(value) : `…commandes « ${ORDER_TABS[i][1].toLowerCase()} »…`}</div>`),
+        "</div>",
+      );
+    htmlUsage = tabsHtml(false);
+    htmlPreview = box(420, tabsHtml(true));
+  }
+
+  return (
+    <Playground
+      slug="onglets"
+      color={color}
+      usage={usage}
+      reactUsage={reactUsage}
+      vueUsage={vueUsage}
+      htmlUsage={htmlUsage}
+      htmlPreview={htmlPreview}
+      height={380}
+      react={
+        bottom ? (
+          <BottomNavDemo badges={badges} />
+        ) : (
+          <KolaTabs
+            className="w-full max-w-[420px]"
+            label="Commandes"
+            variant={pills ? "pills" : "underline"}
+            expand={expand}
+            items={ORDER_TABS.map(([value, label, icon, , badge]) => ({
+              value,
+              label,
+              icon: showIcons ? <Svg d={TAB_ICONS[icon]} /> : undefined,
+              badge: badges ? badge : 0,
+            }))}
+          >
+            {(status) => <OrderList status={status} />}
+          </KolaTabs>
+        )
+      }
+      params={{
+        color,
+        nav: bottom ? "bottom" : undefined,
+        variant: pills ? "pills" : undefined,
+        icons: flag(icons),
+        badges: badges ? undefined : "0",
+        expand: flag(expand),
+        dark: flag(dark),
+      }}
+      controls={
+        <>
+          <ColorPicker value={color} onChange={setColor} />
+          <Toggle label="Barre du bas (app mobile)" checked={bottom} onChange={setBottom} />
+          {!bottom && (
+            <>
+              <Toggle label="Style pastilles" checked={pills} onChange={setPills} />
+              <Toggle label="Icônes" checked={icons} onChange={setIcons} />
+              <Toggle label="Pleine largeur" checked={expand} onChange={setExpand} />
+            </>
+          )}
+          <Toggle label="Compteurs" checked={badges} onChange={setBadges} />
+          <Toggle label="Mode sombre" checked={dark} onChange={setDark} />
+          <p className="text-sm leading-relaxed text-ink-muted">
+            {bottom
+              ? "Dans ton app, la barre se colle en bas de l'écran (fixed)."
+              : "Au clavier : flèches gauche et droite, Début et Fin."}
           </p>
         </>
       }
@@ -1452,6 +1709,7 @@ export const PLAYGROUNDS: Record<string, () => React.JSX.Element> = {
   selecteur: SelectPlayground,
   carte: CardPlayground,
   tableau: TablePlayground,
+  onglets: TabsPlayground,
 };
 
 /** Affiche le playground d'un composant. Rendu côté navigateur : la page serveur

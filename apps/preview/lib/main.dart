@@ -37,6 +37,7 @@ class _Bridge {
 ///   ?c=champ-de-texte&label=E-mail&error=1
 ///   ?c=telephone-237   ·   ?c=montant-fcfa   ·   ?c=code-otp&length=4   ·   ?c=mobile-money&amount=5000
 ///   ?c=date-picker&range=1   ·   ?c=confirmation&sheet=1   ·   ?c=notifications&type=error
+///   ?c=onglets&variant=pills   ·   ?c=onglets&nav=bottom
 ///   ?c=selecteur   ·   ?c=carte&variant=stat   ·   ?c=tableau&mobile=1
 class PreviewApp extends StatefulWidget {
   const PreviewApp({super.key});
@@ -240,6 +241,8 @@ Widget _buildComponent(Map<String, String> p) {
       );
     case 'code-otp':
       return SizedBox(width: 360, child: _OtpDemo(p: p));
+    case 'onglets':
+      return SizedBox(width: p['nav'] == 'bottom' ? 360 : 420, child: _TabsDemo(p: p));
     case 'montant-fcfa':
       final value = int.tryParse(p['value'] ?? '');
       return SizedBox(
@@ -307,6 +310,110 @@ class _OtpDemoState extends State<_OtpDemo> {
                   ),
                 ),
         ),
+      ],
+    );
+  }
+}
+
+/// Démo des onglets : commandes en haut, ou barre du bas d'une app.
+class _TabsDemo extends StatefulWidget {
+  const _TabsDemo({required this.p});
+  final Map<String, String> p;
+
+  @override
+  State<_TabsDemo> createState() => _TabsDemoState();
+}
+
+class _TabsDemoState extends State<_TabsDemo> {
+  int _selected = 0;
+
+  static const _orders = [
+    [('#1042', 'Riz parfumé 5 kg + huile 1 L', '6 100 FCFA'), ('#1041', 'Savon de ménage × 6', '2 100 FCFA'), ('#1039', 'Lait en poudre 400 g', '2 800 FCFA')],
+    [('#1035', 'Sucre 1 kg × 2', '1 800 FCFA')],
+    <(String, String, String)>[],
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final p = widget.p;
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final badges = p['badges'] != '0';
+
+    if (p['nav'] == 'bottom') {
+      const titles = ['Accueil', 'Commandes', 'Paiements', 'Profil'];
+      return Container(
+        height: 300,
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          color: theme.scaffoldBackgroundColor,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: scheme.outlineVariant),
+        ),
+        child: Column(
+          children: [
+            Expanded(child: Center(child: Text(titles[_selected], style: theme.textTheme.titleMedium))),
+            KolaBottomNav(
+              items: [
+                const KolaTabItem(label: 'Accueil', icon: Icons.home_outlined),
+                KolaTabItem(label: 'Commandes', icon: Icons.receipt_long_outlined, badge: badges ? 2 : null),
+                const KolaTabItem(label: 'Paiements', icon: Icons.account_balance_wallet_outlined),
+                const KolaTabItem(label: 'Profil', icon: Icons.person_outline),
+              ],
+              selected: _selected,
+              onChanged: (i) => setState(() => _selected = i),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final icons = p['icons'] == '1';
+    final rows = _orders[_selected];
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        KolaTabs(
+          variant: p['variant'] == 'pills' ? KolaTabsVariant.pills : KolaTabsVariant.underline,
+          expand: p['expand'] == '1',
+          items: [
+            KolaTabItem(label: 'En cours', icon: icons ? Icons.schedule : null, badge: badges ? 3 : null),
+            KolaTabItem(label: 'Livrées', icon: icons ? Icons.check_circle_outline : null),
+            KolaTabItem(label: 'Annulées', icon: icons ? Icons.cancel_outlined : null),
+          ],
+          selected: _selected,
+          onChanged: (i) => setState(() => _selected = i),
+        ),
+        const SizedBox(height: 16),
+        if (rows.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 24),
+            child: Center(
+              child: Text('Aucune commande annulée.', style: TextStyle(color: scheme.onSurfaceVariant)),
+            ),
+          )
+        else
+          Container(
+            decoration: BoxDecoration(
+              color: scheme.surface,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: scheme.outlineVariant),
+            ),
+            child: Column(
+              children: [
+                for (final (n, what, price) in rows)
+                  ListTile(
+                    dense: true,
+                    title: Text.rich(TextSpan(children: [
+                      TextSpan(text: '$n  ', style: TextStyle(color: scheme.onSurfaceVariant)),
+                      TextSpan(text: what),
+                    ])),
+                    trailing: Text(price, style: const TextStyle(fontWeight: FontWeight.w600)),
+                  ),
+              ],
+            ),
+          ),
       ],
     );
   }

@@ -14,3 +14,4 @@ export 'src/kola_toast.dart';
 export 'src/kola_select.dart';
 export 'src/kola_card.dart';
 export 'src/kola_data_table.dart';
+export 'src/kola_tabs.dart';
