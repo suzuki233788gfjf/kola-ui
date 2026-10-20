@@ -49,6 +49,8 @@ class KolaSearchField extends StatefulWidget {
   /// Label au-dessus du champ (facultatif).
   final String? label;
   final String hint;
+
+  /// Suggestions. Vide : simple champ de recherche (pour filtrer une liste, par exemple).
   final List<KolaSearchOption> options;
   final TextEditingController? controller;
   final ValueChanged<String>? onChanged;
@@ -144,7 +146,8 @@ class _KolaSearchFieldState extends State<KolaSearchField> {
   }
 
   void _sync() {
-    final show = _focus.hasFocus && _text.trim().isNotEmpty && _text != _chosen;
+    // Sans suggestions (options vide), c'est un simple champ de recherche : pas de liste.
+    final show = widget.options.isNotEmpty && _focus.hasFocus && _text.trim().isNotEmpty && _text != _chosen;
     if (show && !_portal.isShowing) _portal.show();
     if (!show && _portal.isShowing) _portal.hide();
   }

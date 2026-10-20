@@ -29,9 +29,12 @@ export function Playground({
   htmlPreview,
   color,
   height = 360,
+  frameWidth,
 }: {
   slug: string;
   height?: number;
+  /** Largeur de l'aperçu (ex. 390 pour un téléphone). Par défaut : toute la place. */
+  frameWidth?: number;
   params: Record<string, string | undefined>;
   controls: ReactNode;
   /** Code Flutter (Dart) à copier. */
@@ -65,18 +68,20 @@ export function Playground({
           style={{ minHeight: height }}
           className="flex min-w-0 flex-[999_1_560px] flex-col overflow-hidden rounded-[20px] bg-chip"
         >
-          <PreviewFrame base={PREVIEW_URL} title="Aperçu Flutter" query={queryString} visible={framework === "flutter"} height={height} />
-          <PreviewFrame base={VUE_PREVIEW_URL} title="Aperçu Vue" query={queryString} visible={framework === "vue"} height={height} />
-          {framework === "react" && (
-            <div
-              data-kola-theme={dark ? "dark" : "light"}
-              style={{ minHeight: height, "--kola-primary": `#${color}` } as CSSProperties}
-              className="flex w-full flex-1 items-center justify-center bg-kola-surface-muted p-6"
-            >
-              <KolaToastProvider>{react}</KolaToastProvider>
-            </div>
-          )}
-          {framework === "html" && <HtmlPreview html={htmlPreview ?? htmlUsage} color={color} dark={dark} height={height} />}
+          <div style={{ maxWidth: frameWidth }} className={`mx-auto flex w-full flex-1 flex-col ${frameWidth ? "border-x border-line-strong" : ""}`}>
+            <PreviewFrame base={PREVIEW_URL} title="Aperçu Flutter" query={queryString} visible={framework === "flutter"} height={height} />
+            <PreviewFrame base={VUE_PREVIEW_URL} title="Aperçu Vue" query={queryString} visible={framework === "vue"} height={height} />
+            {framework === "react" && (
+              <div
+                data-kola-theme={dark ? "dark" : "light"}
+                style={{ minHeight: height, "--kola-primary": `#${color}` } as CSSProperties}
+                className="flex w-full flex-1 items-center justify-center bg-kola-surface-muted p-6"
+              >
+                <KolaToastProvider>{react}</KolaToastProvider>
+              </div>
+            )}
+            {framework === "html" && <HtmlPreview html={htmlPreview ?? htmlUsage} color={color} dark={dark} height={height} />}
+          </div>
         </section>
         <aside
           aria-label="Options"

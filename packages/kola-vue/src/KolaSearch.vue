@@ -60,6 +60,7 @@ import { computed, ref, useId } from "vue";
 
 const props = withDefaults(
   defineProps<{
+    /** Suggestions. Vide : simple champ de recherche (pour filtrer une liste, par exemple). */
     options: KolaSearchOption[];
     /** Label au-dessus du champ. Sans label visible, il sert quand même aux lecteurs d'écran. */
     label?: string;
@@ -79,7 +80,8 @@ const input = ref<HTMLInputElement | null>(null);
 const open = ref(false);
 const active = ref(-1);
 const results = computed(() => filterOptions(props.options, model.value, props.maxSuggestions));
-const shown = computed(() => open.value && model.value.trim() !== "");
+// Sans suggestions (options vide), c'est un simple champ de recherche : pas de liste.
+const shown = computed(() => open.value && props.options.length > 0 && model.value.trim() !== "");
 const q = computed(() => foldText(model.value.trim()));
 
 function parts(label: string): [string, string, string] {

@@ -11,6 +11,10 @@ import KolaSearch, { type KolaSearchOption } from "@kola/KolaSearch.vue";
 import KolaFileUpload from "@kola/KolaFileUpload.vue";
 import KolaEmptyState from "@kola/KolaEmptyState.vue";
 import KolaSkeletonList from "@kola/KolaSkeletonList.vue";
+import KolaPhoneLogin from "@kola/blocs/KolaPhoneLogin.vue";
+import KolaCheckout from "@kola/blocs/KolaCheckout.vue";
+import KolaDashboard, { type KolaOrder } from "@kola/blocs/KolaDashboard.vue";
+import KolaProductList from "@kola/blocs/KolaProductList.vue";
 import KolaMobileMoneyForm, { KolaMobileMoneyError, type KolaMobileMoneyRequest } from "@kola/KolaMobileMoneyForm.vue";
 import KolaDatePicker from "@kola/KolaDatePicker.vue";
 import { KolaDateFr, type KolaDateRange } from "@kola/KolaCalendar.vue";
@@ -88,6 +92,43 @@ function retry() {
   retrying.value = true;
   setTimeout(() => (retrying.value = false), 1500);
 }
+
+// Blocs (mêmes données de démo que sur le site)
+const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+async function verifyDemo(_: string, code: string) {
+  await wait(800);
+  return code === "123456";
+}
+const cart = [
+  { name: "Riz parfumé 5 kg", price: 4500, quantity: 1 },
+  { name: "Huile 1 L", price: 1600, quantity: 2 },
+  { name: "Savon de ménage", price: 350, quantity: 3 },
+];
+const dashOrders: KolaOrder[] = [
+  { id: "#1042", customer: "Awa Ngono", total: 6100, status: "pending" },
+  { id: "#1041", customer: "Paul Etoa", total: 2100, status: "pending" },
+  { id: "#1040", customer: "Brice Mbarga", total: 12500, status: "pending" },
+  { id: "#1039", customer: "Chantal Abena", total: 2800, status: "delivered" },
+  { id: "#1037", customer: "Serge Tchoua", total: 4500, status: "delivered" },
+  { id: "#1035", customer: "Mireille Fouda", total: 1800, status: "delivered" },
+];
+const dashStats = [
+  { label: "Ventes du jour", value: "125 000 FCFA", change: 12.5 },
+  { label: "Commandes", value: "18", change: 5 },
+  { label: "Panier moyen", value: "6 950 FCFA", change: -3.2 },
+];
+const productsDemo = [
+  { name: "Riz parfumé 5 kg", price: 4500, stock: 7, category: "Épicerie" },
+  { name: "Huile 1 L", price: 1600, stock: 42, category: "Épicerie" },
+  { name: "Sucre 1 kg", price: 900, stock: 18, category: "Épicerie" },
+  { name: "Lait en poudre 400 g", price: 2800, stock: 12, category: "Épicerie" },
+  { name: "Savon de ménage", price: 350, stock: 64, category: "Entretien" },
+  { name: "Farine 1 kg", price: 700, stock: 4, category: "Épicerie" },
+  { name: "Tomate concentrée", price: 250, stock: 80, category: "Épicerie" },
+  { name: "Eau de Javel 1 L", price: 600, stock: 9, category: "Entretien" },
+];
+const productsLoading = ref(p.c === "liste-recherche");
+if (p.c === "liste-recherche") setTimeout(() => (productsLoading.value = false), 1200);
 
 // Mobile Money (simulation : 3 s, échec si le numéro finit par 0)
 async function simulate(d: KolaMobileMoneyRequest) {
@@ -254,6 +295,15 @@ const variant = (["primary", "secondary", "outline", "text"].includes(p.variant)
       <template v-if="p.action !== '0'" #action><KolaButton label="Partager ma boutique" /></template>
     </KolaEmptyState>
   </div>
+
+  <KolaPhoneLogin v-else-if="p.c === 'connexion-telephone'" :on-send-code="() => wait(800)" :on-verify="verifyDemo" />
+  <KolaCheckout v-else-if="p.c === 'paiement-commande'" :items="cart" :delivery="1000" :on-pay="simulate" />
+  <KolaDashboard v-else-if="p.c === 'tableau-de-bord'" name="Awa" :stats="dashStats" :orders="dashOrders">
+    <template #icon-0><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18v10H3zM12 9.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z" /></svg></template>
+    <template #icon-1><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6" /></svg></template>
+    <template #icon-2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10h16l-1.5 10h-13zM8 10l4-6 4 6" /></svg></template>
+  </KolaDashboard>
+  <KolaProductList v-else-if="p.c === 'liste-recherche'" :products="productsDemo" :loading="productsLoading" />
 
   <div v-else-if="p.c === 'mobile-money'" class="w-full max-w-[400px]">
     <KolaMobileMoneyForm :title="p.title ?? 'Payer par Mobile Money'" :amount="p.amount ? Number(p.amount) : undefined" :on-pay="simulate" />

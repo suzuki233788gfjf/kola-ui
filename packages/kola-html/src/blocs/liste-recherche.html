@@ -1,0 +1,95 @@
+<!--
+  Kola UI — Bloc « Liste avec recherche » : recherche sans accents, chargement, liste vide.
+  Composants utilisés : Champ de texte, Recherche, États vides, Bouton (+ kola-blocs.css).
+  Charge les CSS et JS Kola dans le <head>, puis colle ce bloc dans ta page.
+  Remplace chargerProduits() par le chargement de tes produits.
+-->
+<div class="kola-bloc kola-products" data-kola-products>
+  <div class="kola-products__head">
+    <h2 class="kola-bloc__title">Produits</h2>
+    <span class="kola-bloc__muted" aria-live="polite" data-count></span>
+  </div>
+  <div class="kola-field kola-search" data-kola-search>
+    <label class="kola-field__label kola-sr-only" for="recherche-produit">Rechercher un produit</label>
+    <div class="kola-field__box">
+      <input class="kola-field__input" id="recherche-produit" type="search" placeholder="Rechercher un produit" disabled>
+    </div>
+  </div>
+  <div data-list></div>
+</div>
+<script>
+  (function () {
+    // À remplacer par le chargement de tes produits (prix en FCFA). Démo : 1,2 seconde.
+    async function chargerProduits() {
+      await new Promise((r) => setTimeout(r, 1200));
+      return [
+        { nom: "Riz parfumé 5 kg", prix: 4500, stock: 7, categorie: "Épicerie" },
+        { nom: "Huile 1 L", prix: 1600, stock: 42, categorie: "Épicerie" },
+        { nom: "Sucre 1 kg", prix: 900, stock: 18, categorie: "Épicerie" },
+        { nom: "Lait en poudre 400 g", prix: 2800, stock: 12, categorie: "Épicerie" },
+        { nom: "Savon de ménage", prix: 350, stock: 64, categorie: "Entretien" },
+        { nom: "Farine 1 kg", prix: 700, stock: 4, categorie: "Épicerie" },
+        { nom: "Tomate concentrée", prix: 250, stock: 80, categorie: "Épicerie" },
+        { nom: "Eau de Javel 1 L", prix: 600, stock: 9, categorie: "Entretien" },
+      ];
+    }
+    const STOCK_BAS = 10;
+
+    const bloc = document.querySelector("[data-kola-products]");
+    const $ = (s) => bloc.querySelector(s);
+    const input = $("input");
+    const list = $("[data-list]");
+    const count = $("[data-count]");
+    const esc = (t) => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    const fold = (t) => (window.KolaSearch ? KolaSearch.fold(t) : String(t).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, ""));
+    const montant = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " FCFA";
+    let produits = [];
+
+    // Chargement : des squelettes en attendant les produits.
+    list.innerHTML =
+      '<div class="kola-skeleton-list" role="status" aria-label="Chargement…">' +
+      [70, 55, 70, 55, 70].map((w) => '<div class="kola-skeleton-row"><span class="kola-skeleton kola-skeleton--circle"></span><span class="kola-skeleton-lines"><span class="kola-skeleton" style="width:' + w + '%"></span><span class="kola-skeleton kola-skeleton--small" style="width:' + (w - 15) + '%"></span></span><span class="kola-skeleton" style="width:56px"></span></div>').join("") +
+      "</div>";
+
+    function afficher() {
+      const q = input.value.trim();
+      const f = fold(q);
+      const liste = f ? produits.filter((p) => fold(p.nom).includes(f) || fold(p.categorie || "").includes(f)) : produits;
+      count.textContent = liste.length + " produit" + (liste.length > 1 ? "s" : "");
+      if (!liste.length) {
+        list.innerHTML =
+          '<div class="kola-empty"><span class="kola-empty__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5M8 11h6"/></svg></span>' +
+          '<p class="kola-empty__title">' + (q ? "Aucun produit pour « " + esc(q) + " »" : "Aucun produit") + "</p>" +
+          (q ? '<p class="kola-empty__text">Vérifie l\'orthographe ou essaie un autre mot.</p><div class="kola-empty__action"><button type="button" class="kola-btn kola-btn--outline" data-clear>Effacer la recherche</button></div>' : "") +
+          "</div>";
+        return;
+      }
+      list.innerHTML =
+        '<ul class="kola-products__list">' +
+        liste
+          .map(
+            (p) =>
+              '<li class="kola-products__item"><span class="kola-products__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10h16l-1.5 10h-13zM8 10l4-6 4 6"/></svg></span>' +
+              '<span class="kola-products__info"><span class="kola-products__name">' + esc(p.nom) + "</span>" +
+              '<span class="kola-products__meta">Stock : ' + p.stock + (p.stock < STOCK_BAS ? ' <span class="kola-products__low">Stock bas</span>' : "") + "</span></span>" +
+              '<span class="kola-products__price">' + montant(p.prix) + "</span></li>",
+          )
+          .join("") +
+        "</ul>";
+    }
+
+    input.addEventListener("input", afficher);
+    list.addEventListener("click", (e) => {
+      if (!e.target.closest("[data-clear]")) return;
+      input.value = "";
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+      input.focus();
+    });
+
+    chargerProduits().then((p) => {
+      produits = p;
+      input.disabled = false;
+      afficher();
+    });
+  })();
+</script>

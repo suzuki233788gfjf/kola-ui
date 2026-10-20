@@ -17,10 +17,10 @@ export function Header() {
           <Link href="/demarrer" className="text-ink hover:text-accent">
             Démarrer
           </Link>
-          <span className="flex items-center gap-1.5 text-ink-subtle">
+          <Link href="/blocs" className="flex items-center gap-1.5 text-ink hover:text-accent">
             Blocs
-            <span className="rounded-full bg-chip px-2 py-0.5 text-xs">bientôt</span>
-          </span>
+            <span className="rounded-full bg-accent-tint px-2 py-0.5 text-xs font-semibold text-accent">nouveau</span>
+          </Link>
           <a href={GITHUB_URL} className="rounded-[10px] border border-line-strong px-4 py-2.5 text-ink hover:border-ink">
             GitHub
           </a>

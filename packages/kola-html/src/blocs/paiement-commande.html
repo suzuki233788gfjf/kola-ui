@@ -1,0 +1,59 @@
+<!--
+  Kola UI — Bloc « Paiement de commande » : récapitulatif du panier, puis paiement Mobile Money.
+  Composants utilisés : Formulaire Mobile Money (avec Champ de texte, Téléphone +237, Montant FCFA, Bouton) + kola-blocs.css.
+  Charge les CSS et JS Kola dans le <head>, puis colle ce bloc dans ta page.
+  Remplace le panier par le tien, et payer() par l'appel à ton fournisseur.
+-->
+<div class="kola-bloc kola-checkout" data-kola-checkout>
+  <section class="kola-bloc__card" aria-label="Récapitulatif">
+    <div class="kola-checkout__head">
+      <h2 class="kola-bloc__subtitle">Ta commande</h2>
+      <span class="kola-bloc__muted" data-count></span>
+    </div>
+    <ul class="kola-checkout__items" data-items></ul>
+    <dl class="kola-checkout__totals">
+      <div><dt>Sous-total</dt><dd data-subtotal></dd></div>
+      <div><dt>Livraison</dt><dd data-delivery></dd></div>
+      <div class="is-total"><dt>Total</dt><dd data-total></dd></div>
+    </dl>
+  </section>
+  <div data-paiement></div>
+</div>
+<script>
+  (function () {
+    // Ton panier (prix unitaires en FCFA) et les frais de livraison (0 : gratuite).
+    const articles = [
+      { nom: "Riz parfumé 5 kg", prix: 4500, quantite: 1 },
+      { nom: "Huile 1 L", prix: 1600, quantite: 2 },
+      { nom: "Savon de ménage", prix: 350, quantite: 3 },
+    ];
+    const livraison = 1000;
+
+    // À remplacer par l'appel à ton fournisseur (Campay, Notch Pay, CinetPay…).
+    // Démo : 3 secondes d'attente, échec si le numéro finit par 0.
+    async function payer(demande) {
+      await new Promise((r) => setTimeout(r, 3000));
+      if (demande.phone.endsWith("0")) throw new KolaMobileMoneyError("Solde insuffisant (simulation)");
+    }
+
+    const bloc = document.querySelector("[data-kola-checkout]");
+    const $ = (s) => bloc.querySelector(s);
+    const fcfa = (n) => (window.KolaAmount ? KolaAmount.format(n) : n) + " FCFA";
+    const esc = (t) => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    const sousTotal = articles.reduce((s, a) => s + a.prix * a.quantite, 0);
+    const total = sousTotal + livraison;
+    const nombre = articles.reduce((s, a) => s + a.quantite, 0);
+
+    $("[data-count]").textContent = nombre + " article" + (nombre > 1 ? "s" : "");
+    $("[data-items]").innerHTML = articles
+      .map((a) => "<li><span>" + esc(a.nom) + (a.quantite > 1 ? ' <span class="kola-checkout__qty">× ' + a.quantite + "</span>" : "") + "</span><span>" + fcfa(a.prix * a.quantite) + "</span></li>")
+      .join("");
+    $("[data-subtotal]").textContent = fcfa(sousTotal);
+    $("[data-delivery]").textContent = livraison ? fcfa(livraison) : "Gratuite";
+    $("[data-total]").textContent = fcfa(total);
+
+    const demarrer = () => KolaMobileMoney($("[data-paiement]"), { amount: total, onPay: payer });
+    if (window.KolaMobileMoney) demarrer();
+    else document.addEventListener("DOMContentLoaded", demarrer);
+  })();
+</script>

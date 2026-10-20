@@ -99,7 +99,8 @@
     const render = () => {
       const query = input.value;
       clear.hidden = !query;
-      const shown = open && query.trim() !== "";
+      // Sans <datalist>, c'est un simple champ de recherche : pas de liste.
+      const shown = open && options.length > 0 && query.trim() !== "";
       list.hidden = !shown;
       input.setAttribute("aria-expanded", shown ? "true" : "false");
       if (shown && active >= 0) input.setAttribute("aria-activedescendant", base + "-opt-" + active);

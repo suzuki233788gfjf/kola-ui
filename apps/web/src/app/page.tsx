@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { COMPONENTS } from "@/lib/components";
+import { BLOCS } from "@/lib/blocs";
 
 const STEPS = [
   ["01", "Choisis", "Parcours le catalogue et teste chaque composant en direct, avant d'écrire une ligne."],
@@ -113,6 +114,31 @@ export default function Home() {
               </span>
             </div>
           ))}
+        </div>
+      </section>
+
+      <section className="border-t border-line bg-surface">
+        <div className="mx-auto flex max-w-[1200px] flex-col gap-9 px-6 py-22">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div className="flex max-w-[640px] flex-col gap-3">
+              <h2 className="font-display text-4xl font-bold tracking-tight">Des écrans entiers : les blocs</h2>
+              <p className="text-lg leading-relaxed text-ink-muted">
+                Connexion par SMS, paiement Mobile Money, tableau de bord… Les composants déjà assemblés : tu branches ton
+                serveur et l&apos;écran est prêt.
+              </p>
+            </div>
+            <Link href="/blocs" className="font-semibold text-accent hover:text-accent-dark">
+              Voir les blocs →
+            </Link>
+          </div>
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {BLOCS.map((b) => (
+              <Link key={b.slug} href={`/blocs/${b.slug}`} className="flex flex-col gap-2 rounded-2xl border border-line bg-bg p-6 hover:border-accent">
+                <span className="text-lg font-semibold">{b.name}</span>
+                <span className="leading-relaxed text-ink-muted">{b.summary}</span>
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
     </main>

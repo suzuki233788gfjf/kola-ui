@@ -1,0 +1,89 @@
+<!--
+  Kola UI — Bloc « Tableau de bord boutique » : chiffres clés, puis commandes par statut.
+  Composants utilisés : Carte, Onglets, Tableau de données, États vides (+ kola-blocs.css).
+  Charge les CSS et JS Kola dans le <head>, puis colle ce bloc dans ta page.
+  Remplace les données d'exemple par celles de ta boutique.
+-->
+<div class="kola-bloc kola-dashboard" data-kola-dashboard>
+  <div>
+    <h2 class="kola-bloc__title" data-hello></h2>
+    <p class="kola-bloc__text" data-day></p>
+  </div>
+  <div class="kola-dashboard__stats" data-stats></div>
+  <section class="kola-bloc__card kola-dashboard__orders" aria-label="Commandes">
+    <h3 class="kola-bloc__subtitle">Commandes</h3>
+    <div data-orders></div>
+  </section>
+</div>
+<script>
+  (function () {
+    // Tes données (à remplacer).
+    const nom = "Awa";
+    const chiffres = [
+      { label: "Ventes du jour", valeur: "125 000 FCFA", evolution: 12.5 },
+      { label: "Commandes", valeur: "18", evolution: 5 },
+      { label: "Panier moyen", valeur: "6 950 FCFA", evolution: -3.2 },
+    ];
+    const commandes = [
+      { id: "#1042", client: "Awa Ngono", montant: 6100, statut: "en-cours" },
+      { id: "#1041", client: "Paul Etoa", montant: 2100, statut: "en-cours" },
+      { id: "#1040", client: "Brice Mbarga", montant: 12500, statut: "en-cours" },
+      { id: "#1039", client: "Chantal Abena", montant: 2800, statut: "livree" },
+      { id: "#1037", client: "Serge Tchoua", montant: 4500, statut: "livree" },
+      { id: "#1035", client: "Mireille Fouda", montant: 1800, statut: "livree" },
+    ];
+
+    const STATUTS = { "en-cours": "En cours", livree: "Livrée", annulee: "Annulée" };
+    const ONGLETS = [
+      { label: "Toutes", filtre: null, vide: "Aucune commande pour le moment" },
+      { label: "En cours", filtre: "en-cours", vide: "Aucune commande en cours" },
+      { label: "Livrées", filtre: "livree", vide: "Aucune commande livrée" },
+      { label: "Annulées", filtre: "annulee", vide: "Aucune commande annulée" },
+    ];
+    const bloc = document.querySelector("[data-kola-dashboard]");
+    const $ = (s) => bloc.querySelector(s);
+    const esc = (t) => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    const montant = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " FCFA";
+    const svg = (d) => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="' + d + '"/></svg>';
+
+    $("[data-hello]").textContent = "Bonjour, " + nom;
+    $("[data-day]").textContent = new Intl.DateTimeFormat("fr-FR", { weekday: "long", day: "numeric", month: "long" }).format(new Date());
+
+    $("[data-stats]").innerHTML = chiffres
+      .map((c) => {
+        const up = c.evolution >= 0;
+        const evo = (up ? "+" : "−") + String(Math.abs(c.evolution)).replace(".", ",") + " %";
+        return (
+          '<div class="kola-stat"><div class="kola-stat__head"><span class="kola-stat__label">' + esc(c.label) + "</span></div>" +
+          '<span class="kola-stat__value">' + esc(c.valeur) + "</span>" +
+          '<span class="kola-stat__change kola-stat__change--' + (up ? "up" : "down") + '">' +
+          svg(up ? "M3 17l6-6 4 4 8-8M15 7h6v6" : "M3 7l6 6 4-4 8 8M15 17h6v-6") + " " + evo + " <small>vs hier</small></span></div>"
+        );
+      })
+      .join("");
+
+    const enCours = commandes.filter((c) => c.statut === "en-cours").length;
+    const tableau = (liste) =>
+      '<table class="kola-table" data-kola-table data-rows-per-page="5"><thead><tr>' +
+      '<th data-sort>N°</th><th data-sort>Client</th><th data-sort="number" class="is-num">Montant</th><th>Statut</th>' +
+      "</tr></thead><tbody>" +
+      liste.map((c) => "<tr><td>" + esc(c.id) + "</td><td>" + esc(c.client) + '</td><td class="is-num" data-value="' + c.montant + '">' + montant(c.montant) + "</td><td>" + STATUTS[c.statut] + "</td></tr>").join("") +
+      "</tbody></table>";
+    const vide = (titre) =>
+      '<div class="kola-empty"><span class="kola-empty__icon">' + svg("M3 13l2.5-7h13L21 13M3 13v6h18v-6M3 13h5l1.5 2.5h5L16 13h5") + '</span><p class="kola-empty__title">' + titre + "</p></div>";
+
+    $("[data-orders]").innerHTML =
+      '<div class="kola-tabs" data-kola-tabs><div class="kola-tabs__list" role="tablist" aria-label="Commandes par statut">' +
+      ONGLETS.map((o, i) => '<button class="kola-tabs__tab" role="tab"' + (i === 0 ? ' aria-selected="true"' : "") + ">" + o.label + (o.filtre === "en-cours" && enCours ? ' <span class="kola-badge">' + enCours + "</span>" : "") + "</button>").join("") +
+      "</div>" +
+      ONGLETS.map((o, i) => {
+        const liste = o.filtre ? commandes.filter((c) => c.statut === o.filtre) : commandes;
+        return '<div class="kola-tabs__panel" role="tabpanel"' + (i ? " hidden" : "") + ">" + (liste.length ? tableau(liste) : vide(o.vide)) + "</div>";
+      }).join("") +
+      "</div>";
+
+    // Si les scripts Kola sont déjà chargés, on active tout de suite les onglets et les tableaux.
+    if (window.KolaTabs) KolaTabs.init(bloc);
+    if (window.KolaDataTable) KolaDataTable.init(bloc);
+  })();
+</script>

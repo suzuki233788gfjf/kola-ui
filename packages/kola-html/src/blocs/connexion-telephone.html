@@ -1,0 +1,132 @@
+<!--
+  Kola UI — Bloc « Connexion par téléphone » : numéro +237, puis code reçu par SMS.
+  Composants utilisés : Champ de texte, Téléphone +237, Code OTP, Bouton (+ kola-blocs.css).
+  Charge les CSS et JS Kola dans le <head>, puis colle ce bloc dans ta page.
+  Remplace envoyerCode() et verifierCode() par les appels à ton serveur.
+-->
+<div class="kola-bloc kola-login kola-bloc__card" data-kola-login>
+  <form class="kola-bloc__stack" data-step="phone">
+    <div>
+      <h2 class="kola-bloc__title">Connexion</h2>
+      <p class="kola-bloc__text">Entre ton numéro : on t'envoie un code par SMS.</p>
+    </div>
+    <div class="kola-field" data-kola-phone>
+      <label class="kola-field__label" for="connexion-tel">Numéro de téléphone</label>
+      <div class="kola-field__box">
+        <span class="kola-field__prefix">+237</span>
+        <input class="kola-field__input" id="connexion-tel" name="telephone" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="6 XX XX XX XX">
+      </div>
+    </div>
+    <p class="kola-bloc__error" role="alert" data-error hidden></p>
+    <button type="submit" class="kola-btn kola-btn--primary kola-btn--block" data-send disabled>Recevoir le code</button>
+  </form>
+
+  <div class="kola-bloc__stack" data-step="code" hidden>
+    <button type="button" class="kola-bloc__back" data-back>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
+      Modifier le numéro
+    </button>
+    <div>
+      <h2 class="kola-bloc__title">Vérifie ton numéro</h2>
+      <p class="kola-bloc__text">Code envoyé au <b data-phone></b>.</p>
+    </div>
+    <div data-otp></div>
+    <p class="kola-bloc__status" role="status" data-busy hidden><span class="kola-spinner" aria-hidden="true"></span> Vérification…</p>
+  </div>
+
+  <div class="kola-bloc__done" role="status" data-step="done" hidden>
+    <span class="kola-bloc__done-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+    </span>
+    <h2 class="kola-bloc__title">Bienvenue !</h2>
+    <p class="kola-bloc__text">Tu es connecté avec le <span data-phone></span>.</p>
+  </div>
+</div>
+<script>
+  (function () {
+    // À remplacer par les appels à ton serveur. (Démo : le bon code est 123456.)
+    async function envoyerCode(numero) {
+      await new Promise((r) => setTimeout(r, 800));
+    }
+    async function verifierCode(numero, code) {
+      await new Promise((r) => setTimeout(r, 800));
+      return code === "123456";
+    }
+
+    const bloc = document.querySelector("[data-kola-login]");
+    const $ = (s) => bloc.querySelector(s);
+    const steps = { phone: $('[data-step="phone"]'), code: $('[data-step="code"]'), done: $('[data-step="done"]') };
+    const sendBtn = $("[data-send]");
+    const phoneError = $("[data-error]");
+    let numero = "";
+
+    const show = (name) => Object.entries(steps).forEach(([k, el]) => (el.hidden = k !== name));
+    const affiche = (n) => "+237 " + (window.KolaPhone ? KolaPhone.format(n) : n);
+    const valide = () => numero.length === 9 && (!window.KolaPhone || KolaPhone.validate(numero) === null);
+
+    bloc.addEventListener("kola-change", (e) => {
+      if (!e.detail || e.detail.phone === undefined) return;
+      numero = e.detail.phone;
+      sendBtn.disabled = !valide();
+      phoneError.hidden = true;
+    });
+
+    steps.phone.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (!valide()) return;
+      sendBtn.disabled = true;
+      sendBtn.classList.add("is-loading");
+      sendBtn.innerHTML = '<span class="kola-spinner" aria-hidden="true"></span> Recevoir le code';
+      try {
+        await envoyerCode(numero);
+        ouvrirCode();
+      } catch (err) {
+        phoneError.textContent = "Impossible d'envoyer le SMS. Réessaie.";
+        phoneError.hidden = false;
+      } finally {
+        sendBtn.disabled = !valide();
+        sendBtn.classList.remove("is-loading");
+        sendBtn.textContent = "Recevoir le code";
+      }
+    });
+
+    function ouvrirCode() {
+      bloc.querySelectorAll("[data-phone]").forEach((el) => (el.textContent = affiche(numero)));
+      // Un nouveau champ à chaque envoi : le compte à rebours repart de zéro.
+      const slot = $("[data-otp]");
+      slot.innerHTML =
+        '<div class="kola-field kola-otp" data-kola-otp data-length="6" data-resend="60">' +
+        '<label class="kola-field__label" for="connexion-code">Code de vérification</label>' +
+        '<input class="kola-otp__input" id="connexion-code" name="code"></div>';
+      show("code");
+      if (window.KolaOtp) KolaOtp.init(slot);
+      const field = slot.firstElementChild;
+      field.addEventListener("kola-change", (e) => {
+        e.stopPropagation();
+        KolaOtp.setError(field, null);
+      });
+      field.addEventListener("kola-resend", () => envoyerCode(numero));
+      field.addEventListener("kola-complete", async (e) => {
+        const busy = $("[data-busy]");
+        busy.hidden = false;
+        let erreur = null;
+        try {
+          if (await verifierCode(numero, e.detail.code)) {
+            show("done");
+            bloc.dispatchEvent(new CustomEvent("kola-success", { bubbles: true, detail: { phone: numero } }));
+          } else erreur = "Code incorrect. Réessaie.";
+        } catch (err) {
+          erreur = "Vérification impossible. Réessaie.";
+        }
+        busy.hidden = true;
+        if (erreur) {
+          KolaOtp.clear(field); // vide d'abord le code (ça efface l'erreur)…
+          KolaOtp.setError(field, erreur); // … puis affiche l'erreur
+        }
+      });
+      field.querySelector("input").focus();
+    }
+
+    $("[data-back]").addEventListener("click", () => show("phone"));
+  })();
+</script>

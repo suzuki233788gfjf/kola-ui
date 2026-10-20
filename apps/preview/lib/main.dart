@@ -39,6 +39,7 @@ class _Bridge {
 ///   ?c=date-picker&range=1   ·   ?c=confirmation&sheet=1   ·   ?c=notifications&type=error
 ///   ?c=onglets&variant=pills   ·   ?c=onglets&nav=bottom
 ///   ?c=recherche   ·   ?c=televersement   ·   ?c=etats-vides&error=1
+///   Blocs : ?c=connexion-telephone · ?c=paiement-commande · ?c=tableau-de-bord · ?c=liste-recherche
 ///   ?c=selecteur   ·   ?c=carte&variant=stat   ·   ?c=tableau&mobile=1
 class PreviewApp extends StatefulWidget {
   const PreviewApp({super.key});
@@ -250,6 +251,49 @@ Widget _buildComponent(Map<String, String> p) {
       return SizedBox(width: 400, child: _UploadDemo(p: p));
     case 'etats-vides':
       return _StatesDemo(p: p);
+    case 'connexion-telephone':
+      return KolaPhoneLogin(
+        onSendCode: (_) => Future<void>.delayed(const Duration(milliseconds: 800)),
+        onVerify: (_, code) async {
+          await Future<void>.delayed(const Duration(milliseconds: 800));
+          return code == '123456';
+        },
+      );
+    case 'paiement-commande':
+      return KolaCheckout(
+        items: const [
+          KolaCartItem(name: 'Riz parfumé 5 kg', price: 4500),
+          KolaCartItem(name: 'Huile 1 L', price: 1600, quantity: 2),
+          KolaCartItem(name: 'Savon de ménage', price: 350, quantity: 3),
+        ],
+        delivery: 1000,
+        onPay: (demande) async {
+          // Simulation : 3 secondes d'attente, échec si le numéro finit par 0.
+          await Future<void>.delayed(const Duration(seconds: 3));
+          if (demande.phone.endsWith('0')) {
+            throw const KolaMobileMoneyException('Solde insuffisant (simulation)');
+          }
+        },
+      );
+    case 'tableau-de-bord':
+      return const KolaDashboard(
+        name: 'Awa',
+        stats: [
+          KolaStat(label: 'Ventes du jour', value: '125 000 FCFA', change: 12.5, icon: Icons.payments_outlined),
+          KolaStat(label: 'Commandes', value: '18', change: 5, icon: Icons.receipt_long_outlined),
+          KolaStat(label: 'Panier moyen', value: '6 950 FCFA', change: -3.2, icon: Icons.shopping_basket_outlined),
+        ],
+        orders: [
+          KolaOrder(id: '#1042', customer: 'Awa Ngono', total: 6100, status: KolaOrderStatus.pending),
+          KolaOrder(id: '#1041', customer: 'Paul Etoa', total: 2100, status: KolaOrderStatus.pending),
+          KolaOrder(id: '#1040', customer: 'Brice Mbarga', total: 12500, status: KolaOrderStatus.pending),
+          KolaOrder(id: '#1039', customer: 'Chantal Abena', total: 2800, status: KolaOrderStatus.delivered),
+          KolaOrder(id: '#1037', customer: 'Serge Tchoua', total: 4500, status: KolaOrderStatus.delivered),
+          KolaOrder(id: '#1035', customer: 'Mireille Fouda', total: 1800, status: KolaOrderStatus.delivered),
+        ],
+      );
+    case 'liste-recherche':
+      return const _ProductListDemo();
     case 'montant-fcfa':
       final value = int.tryParse(p['value'] ?? '');
       return SizedBox(
@@ -575,6 +619,40 @@ class _StatesDemoState extends State<_StatesDemo> {
       child: child,
     );
   }
+}
+
+/// Démo de la liste : 1,2 seconde de chargement, puis les produits.
+class _ProductListDemo extends StatefulWidget {
+  const _ProductListDemo();
+
+  @override
+  State<_ProductListDemo> createState() => _ProductListDemoState();
+}
+
+class _ProductListDemoState extends State<_ProductListDemo> {
+  bool _loading = true;
+
+  static const _products = [
+    KolaProduct(name: 'Riz parfumé 5 kg', price: 4500, stock: 7, category: 'Épicerie'),
+    KolaProduct(name: 'Huile 1 L', price: 1600, stock: 42, category: 'Épicerie'),
+    KolaProduct(name: 'Sucre 1 kg', price: 900, stock: 18, category: 'Épicerie'),
+    KolaProduct(name: 'Lait en poudre 400 g', price: 2800, stock: 12, category: 'Épicerie'),
+    KolaProduct(name: 'Savon de ménage', price: 350, stock: 64, category: 'Entretien'),
+    KolaProduct(name: 'Farine 1 kg', price: 700, stock: 4, category: 'Épicerie'),
+    KolaProduct(name: 'Tomate concentrée', price: 250, stock: 80, category: 'Épicerie'),
+    KolaProduct(name: 'Eau de Javel 1 L', price: 600, stock: 9, category: 'Entretien'),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    Future<void>.delayed(const Duration(milliseconds: 1200), () {
+      if (mounted) setState(() => _loading = false);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) => KolaProductList(products: _products, loading: _loading);
 }
 
 Color? _parseHex(String? hex) {

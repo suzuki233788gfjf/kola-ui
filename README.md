@@ -44,6 +44,18 @@ pas de mise à jour qui casse tout.
 | **Notifications** | Succès, erreur, info, avertissement |
 | **États vides et chargement** | Écran vide ou d'erreur avec action, squelettes de chargement |
 
+## Blocs
+
+Des écrans entiers, assemblés avec les composants. Tu copies le bloc et les composants qu'il utilise,
+tu branches ton serveur, et l'écran est prêt.
+
+| Bloc | Ce qu'il fait |
+| --- | --- |
+| **Connexion par téléphone** | Numéro +237, code reçu par SMS, puis « Bienvenue » |
+| **Paiement de commande** | Récapitulatif du panier en FCFA, puis paiement MTN MoMo ou Orange Money |
+| **Tableau de bord boutique** | Chiffres clés, commandes par statut, tri, pagination, état vide |
+| **Liste avec recherche** | Recherche sans accents, squelettes de chargement, « aucun résultat » |
+
 Chaque composant existe en **Flutter**, **React**, **Vue** et **HTML**, avec le même comportement.
 Aucun n'ajoute de dépendance :
 

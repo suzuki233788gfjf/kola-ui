@@ -46,6 +46,7 @@ export function filterOptions<T>(options: KolaSearchOption<T>[], query: string, 
 }
 
 export type KolaSearchProps<T> = {
+  /** Suggestions. Vide : simple champ de recherche (pour filtrer une liste, par exemple). */
   options: KolaSearchOption<T>[];
   /** Label au-dessus du champ. Sans label visible, il sert quand même aux lecteurs d'écran. */
   label?: string;
@@ -97,7 +98,8 @@ export function KolaSearch<T = string>({
   const [active, setActive] = useState(-1);
   const query = value ?? inner;
   const results = useMemo(() => filterOptions(options, query, maxSuggestions), [options, query, maxSuggestions]);
-  const shown = open && query.trim() !== "";
+  // Sans suggestions (options vide), c'est un simple champ de recherche : pas de liste.
+  const shown = open && options.length > 0 && query.trim() !== "";
 
   const setQuery = (q: string) => {
     setInner(q);

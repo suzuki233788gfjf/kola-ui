@@ -99,6 +99,8 @@ function startTimer() {
 }
 onMounted(() => {
   if (props.onResend) startTimer();
+  // L'attribut autofocus ne marche qu'au chargement de la page : on place le curseur nous-mêmes.
+  if (props.autofocus) input.value?.focus();
 });
 onBeforeUnmount(() => clearInterval(timer));
 
